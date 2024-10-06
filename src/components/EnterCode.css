@@ -1,0 +1,34 @@
+/* Container styling to center content */
+.Container {
+  display: flex;
+  gap: 8px;
+  position: relative;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  margin-bottom: 16px; /* Space for additional elements */
+}
+
+/* Input styling for code input fields */
+.CodeInput {
+  font-size: 1.5rem; /* Equivalent to text-2xl */
+  background-color: #2d3748; /* Equivalent to bg-gray-800 */
+  width: 40px; /* Equivalent to w-10 */
+  padding: 8px; /* Equivalent to p-2 */
+  text-align: center;
+  border: 1px solid #cbd5e0; /* Light gray border */
+  border-radius: 4px; /* Slightly rounded corners */
+  color: #edf2f7; /* Light text color */
+}
+
+/* Focus state styling for code input fields */
+.CodeInput:focus {
+  outline: none;
+  border-color: #63b3ed; /* Light blue border on focus */
+  box-shadow: 0 0 0 2px #63b3ed; /* Light blue shadow on focus */
+}
+
+/* Disabled state styling */
+.CodeInput:disabled {
+  background-color: #4a5568; /* Dark gray background for disabled state */
+}
+
