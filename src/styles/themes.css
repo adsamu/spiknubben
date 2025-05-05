@@ -1,0 +1,15 @@
+:root {
+  --color-primary: #1e40af; /* default blue */
+  --color-secondary: #facc15; /* default yellow */
+  --color-background: #fff;
+  --color-surface: #f1f5f9;
+  --color-text: #111827;
+}
+
+.theme-gmbk {
+  --color-primary: #002c6e; /* deep blue */
+  --color-secondary: #f6c400; /* strong yellow */
+  --color-background: #fffef3;
+  --color-surface: #fef9e7;
+  --color-text: #000e2f;
+}
