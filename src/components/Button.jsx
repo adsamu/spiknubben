@@ -15,9 +15,9 @@ export default function Button({
         min-h-[48px]
         px-4
         py-3
-        bg-blue-500
-        hover:bg-blue-600
-        active:bg-blue-700
+        bg-secondary
+        hover:bg-accent2
+        active:bg-accent2
         text-white
         text-lg
         font-semibold

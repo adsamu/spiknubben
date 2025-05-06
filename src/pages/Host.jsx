@@ -29,10 +29,8 @@ export default function HostRoom() {
     return <p>Loading room data...</p>;
   }
 
-
-
   return (
-    <div>
+    <div className="">
       <h1>Host Dashboard</h1>
       <p><strong>Room Code:</strong> {roomCode}</p>
       <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />

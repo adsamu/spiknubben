@@ -73,7 +73,7 @@ export default function JoinGame() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4">
+    <div className="w-[90%] max-w-md bg-surface rounded-xl shadow-md p-6 text-center">
       <h1 className="text-2xl font-bold mb-4 text-center">Join Game: {roomCode}</h1>
 
       <div className="mb-4">
