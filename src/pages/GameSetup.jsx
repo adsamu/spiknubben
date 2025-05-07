@@ -44,55 +44,6 @@ export default function GameSetup() {
               className="w-full min-h-[48px] px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg"
             />
           </div>
-
-          <div className="mb-8">
-            <label className="block text-text font-semibold mb-1">
-              Number of Challenges
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={challenges}
-              onChange={(e) => setChallenges(parseInt(e.target.value))}
-              className="w-full min-h-[48px] px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg"
-            />
-          </div>
-          <div className="mb-8">
-            <label className="block text-text font-semibold mb-1">
-              Number of Challenges
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={challenges}
-              onChange={(e) => setChallenges(parseInt(e.target.value))}
-              className="w-full min-h-[48px] px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg"
-            />
-          </div>
-          <div className="mb-8">
-            <label className="block text-text font-semibold mb-1">
-              Number of Challenges
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={challenges}
-              onChange={(e) => setChallenges(parseInt(e.target.value))}
-              className="w-full min-h-[48px] px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg"
-            />
-          </div>
-          <div className="mb-8">
-            <label className="block text-text font-semibold mb-1">
-              Number of Challenges
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={challenges}
-              onChange={(e) => setChallenges(parseInt(e.target.value))}
-              className="w-full min-h-[48px] px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg"
-            />
-          </div>
           <Button onClick={createRoom}>Start Game</Button>
         </div>
       </div>

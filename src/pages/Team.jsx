@@ -42,7 +42,7 @@ export default function TeamView() {
   }
 
   return (
-    <div className="pt-32 max-w-4xl mx-auto">
+      <div className="w-[90%] max-w-md bg-surface rounded-xl shadow-md p-6 text-center">
       <h1 className="text-2xl font-bold mb-2">Team: {teamId}</h1>
       <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
 
