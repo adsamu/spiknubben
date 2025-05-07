@@ -6,6 +6,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 
 import Scoreboard from "../components/Scoreboard";
+import Card from "../components/Card";
 import { useScoreboard } from "../hooks/useScoreboard";
 
 export default function HostRoom() {
@@ -30,9 +31,10 @@ export default function HostRoom() {
   }
 
   return (
-      <div className="w-[90%] max-w-md bg-surface rounded-xl shadow-md p-6 text-center">
+    <Card>
       <h1>Host Dashboard</h1>
       <p><strong>Room Code:</strong> {roomCode}</p>
+
       <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />
 
       <h2>Game Settings</h2>
@@ -51,7 +53,7 @@ export default function HostRoom() {
         </ul>
       )}
       <Scoreboard players={players} />;
-    </div>
+    </Card>
   );
 }
 

@@ -1,15 +1,15 @@
 import logo from "../logo.png";
 // import "./Banner.css";
 
-export default function Banner({ label = "GRÄSHARENSPELEN" }) {
+export default function Banner({ label = "SPIKNUBBEN" }) {
   return (
 
-      <div className="flex bg-primary items-center px-4 py-3 z-5">
-        <img src={logo} alt="Logo" className="h-20 w-auto" />
+      <div className="flex bg-white items-center px-5 py-5 z-5">
+        <img src={logo} alt="Logo" className="h-30 w-auto" />
 
-        <div className="ml-auto text-right">
+        <div className="ml-auto text-right mt-12">
           <h1 className="text-3xl font-bold leading-none">{label}</h1>
-          <p className="text-accent font-bold rotate-340 mt-1">2024</p>
+          <p className="text-accent font-bold rotate-340 mt-5">2024</p>
         </div>
       </div>
   );

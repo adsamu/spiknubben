@@ -12,7 +12,7 @@ function App() {
     <Router>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<GameSetup />} />
           <Route path="/host/:roomCode" element={<Host />} />
           <Route path="/join/:roomCode" element={<Join />} />
           <Route path="/team/:teamId" element={<Team />} />
