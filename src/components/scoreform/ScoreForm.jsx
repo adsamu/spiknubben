@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase-config";
+import { db } from "@/firebase-config";
 
-export default function TeamScore({ roomCode, players, challenges }) {
+export default function ScoreForm({ roomCode, players, challenges }) {
   const [grid, setGrid] = useState([]); // score values
   const [timestamps, setTimestamps] = useState([]); // time of last update per cell
   const [confirmCell, setConfirmCell] = useState(null); // { row, col } or null

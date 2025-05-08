@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { db } from "../firebase-config";
 import { collection, getDocs } from "firebase/firestore";
-import TeamScore from "../components/TeamScore";
+import { db } from "@/firebase-config";
+import { ScoreForm } from "@/components/scoreform";
 
 export default function TeamView() {
   const { teamId } = useParams();

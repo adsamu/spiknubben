@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { db } from "../firebase-config";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
+import { db } from "@/firebase-config";
 
 export default function JoinGame() {
   const { roomCode } = useParams();
@@ -49,6 +49,10 @@ export default function JoinGame() {
         return;
       }
 
+      const roomData = roomSnap.data();
+      const numChallenges = roomData.challenges || 5; // default to 5 if missing
+
+
       // Add each member as a player document under this room
       await Promise.all(
         members.map((name) => {
@@ -60,6 +64,7 @@ export default function JoinGame() {
             teamId: teamName,
             points: 0,
             spikar: 0,
+            scores: Array(numChallenges).fill(0),
             joinedAt: serverTimestamp()
           });
         })

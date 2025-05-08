@@ -1,11 +1,11 @@
 // src/pages/GameSetup.jsx
 import { useState } from "react";
-import { db } from "../firebase-config";
 import { doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
-import Button from "../components/Button";
-import Banner from "../components/Banner";
+import { db } from "@/firebase-config";
+import { Button } from "@/components/ui";
+import { Banner } from "@/components/layout";
 
 const generateRoomCode = () =>
   Math.random().toString(36).substr(2, 6).toUpperCase();

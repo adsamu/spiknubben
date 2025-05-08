@@ -5,7 +5,8 @@ import Host from './pages/Host';
 import Join from './pages/Join';
 import Team from './pages/Team';
 import Home from './pages/Home';
-import Layout from './components/Layout';
+import { Layout } from '@/components/layout';
+
 
 function App() {
   return (
