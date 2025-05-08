@@ -1,12 +1,12 @@
 import { Board } from '@/components/ui';
 import TeamRow from './TeamRow';
 
-export default function Teamboard({ players }) {
+export default function Teamboard({ title, teams }) {
   return (
-    <Board title="Scoreboard">
+    <Board title={title}>
       <ul className="divide-y divide-gray-200">
-        {players.map((p, i) => (
-          <TeamRow key={p.id ?? i} player={p} />
+        {Object.entries(teams).map(([team, players]) => (
+          <TeamRow key={team} team={team} players={players} />
         ))}
       </ul>
     </Board>

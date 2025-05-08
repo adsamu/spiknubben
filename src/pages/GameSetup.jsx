@@ -44,7 +44,7 @@ export default function GameSetup() {
               className="w-full min-h-[48px] px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg"
             />
           </div>
-          <Button onClick={createRoom}>Start Game</Button>
+          <Button onClick={createRoom} className="w-full" >Start Game</Button>
         </div>
       </div>
   );

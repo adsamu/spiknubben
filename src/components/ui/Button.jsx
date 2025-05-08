@@ -11,7 +11,6 @@ export default function Button({
       onClick={onClick}
       disabled={disabled}
       className={`
-        w-full
         min-h-[48px]
         px-4
         py-3

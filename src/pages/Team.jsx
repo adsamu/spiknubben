@@ -46,7 +46,7 @@ export default function TeamView() {
       <h1 className="text-2xl font-bold mb-2">Team: {teamId}</h1>
       <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
 
-      <TeamScore
+      <ScoreForm
         roomCode={roomCode}
         players={players}
         challenges={challenges}

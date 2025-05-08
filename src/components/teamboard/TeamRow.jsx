@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import TeamDetail from './TeamDetail'; // you can stub this for now
+import { getTotalPoints, getSpikarCount } from '@/utils/points';
 
-export default function TeamRow({ player }) {
+export default function TeamRow({ team, players }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const totalPoints = player.scores.reduce((sum, n) => sum + n, 0);
-  const spikarCount = player.scores.filter((n) => n === 1).length;
+  const totalPoints = players.reduce((acc, player) => acc + getTotalPoints(player) , 0);
+  const spikarCount = players.reduce((acc, player) => acc + getSpikarCount(player) , 0);
+
 
   return (
     <li
@@ -13,7 +15,7 @@ export default function TeamRow({ player }) {
       className="py-4 px-2 hover:bg-gray-50 transition cursor-pointer rounded-md"
     >
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-gray-800">{player.name}</p>
+        <p className="font-semibold text-gray-800">{team}</p>
 
         <div className="text-right">
           <p className="text-sm text-gray-600">
@@ -31,7 +33,7 @@ export default function TeamRow({ player }) {
         </div>
       </div>
 
-      {isExpanded && <TeamDetail player={player} />}
+      {isExpanded && <TeamDetail players={players} />}
     </li>
   );
 }

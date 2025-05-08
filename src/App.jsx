@@ -1,10 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './App.css';
-import GameSetup from './pages/GameSetup';
-import Host from './pages/Host';
-import Join from './pages/Join';
-import Team from './pages/Team';
-import Home from './pages/Home';
+import { Host, Join, Team, Home, GameSetup } from '@/pages/';
 import { Layout } from '@/components/layout';
 
 

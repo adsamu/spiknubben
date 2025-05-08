@@ -15,6 +15,7 @@ export default function HostRoom() {
   const { roomCode } = useParams();
   const [roomData, setRoomData] = useState(null);
   const players = useScoreboard(roomCode);
+  
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "rooms", roomCode), (docSnap) => {
@@ -34,8 +35,6 @@ export default function HostRoom() {
 
   const teams = groupPlayersByTeam(players);
 
-
-
   return (
     <Card>
       <p><strong>Room Code:</strong> {roomCode}</p>
@@ -45,23 +44,9 @@ export default function HostRoom() {
       <h2>Game Settings</h2>
       <p>Number of Challenges: {roomData.challenges}</p>
 
-      <Teamboard title="Upcoming Matches" players={players}>
-        {/* …your own list component goes here… */}
-      </Teamboard>
+      <Teamboard title="Lag" teams={teams} />
 
-      <h2>Teams</h2>
-      {Object.keys(teams).length === 0 ? (
-        <p>No teams joined yet.</p>
-      ) : (
-        <ul>
-          {Object.entries(teams).map(([teamId, members]) => (
-            <li key={teamId}>
-              <strong>{teamId}</strong>: {members.map(m => m.name).join(", ")}
-            </li>
-          ))}
-        </ul>
-      )}
-      <Scoreboard players={players} />
+      <Scoreboard title="Poängtavla" players={players} />
     </Card>
   );
 }
