@@ -4,7 +4,7 @@ import Background from "./Background"
 
 export default function Layout() {
   return (
-    <div className="min-h-screen bg-background text-text flex flex-col">
+    <div className="min-h-screen bg-background text-text flex flex-col pb-10">
       <Banner />
 
       <Background />      

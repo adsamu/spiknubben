@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMars, faVenus } from "@fortawesome/free-solid-svg-icons";
+
 import { db } from "@/firebase-config";
+import { Button, TextInput, Switch } from "@/components/ui";
 
 export default function JoinGame() {
   const { roomCode } = useParams();
@@ -82,7 +86,7 @@ export default function JoinGame() {
       <h1 className="text-2xl font-bold mb-4 text-center">Join Game: {roomCode}</h1>
 
       <div className="mb-4">
-        <label className="block font-semibold mb-1">Team Name</label>
+        <label className="block font-semibold mb-1">Gruppnamn</label>
         <input
           type="text"
           value={teamName}
@@ -95,21 +99,18 @@ export default function JoinGame() {
         <h3 className="font-semibold mb-2">Team Members</h3>
         {members.map((member, index) => (
           <div key={index} className="flex items-center gap-2 mb-2">
-            <input
-              type="text"
-              placeholder={`Member ${index + 1}`}
+            <TextInput
               value={member}
-              onChange={(e) => handleMemberChange(index, e.target.value)}
-              className="flex-1 px-4 py-2 border rounded-md"
+              placeholder={`Member ${index + 1}`}
+              handleChange={(e) => handleMemberChange(index, e.target.value)}
             />
-            {members.length > 1 && (
-              <button
-                onClick={() => handleRemoveMember(index)}
-                className="text-red-500 hover:underline"
-              >
-                Remove
-              </button>
-            )}
+            <Switch>
+
+              <FontAwesomeIcon icon={faMars} className="" />
+              <FontAwesomeIcon icon={faVenus} className="" />
+
+            </Switch>
+
           </div>
         ))}
 

@@ -76,7 +76,6 @@ export default function TeamDetail({ players }) {
       {/* Modal content */}
       {activeModal?.type === "remove" && (
         <ConfirmModal
-          player={activeModal.player}
           onConfirm={handleRemove}
           onCancel={closeModal}
         >

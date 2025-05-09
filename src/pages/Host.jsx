@@ -15,7 +15,7 @@ export default function HostRoom() {
   const { roomCode } = useParams();
   const [roomData, setRoomData] = useState(null);
   const players = useScoreboard(roomCode);
-  
+
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "rooms", roomCode), (docSnap) => {
@@ -37,12 +37,11 @@ export default function HostRoom() {
 
   return (
     <Card>
-      <p><strong>Room Code:</strong> {roomCode}</p>
 
-      <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />
-
-      <h2>Game Settings</h2>
-      <p>Number of Challenges: {roomData.challenges}</p>
+      <div className="flex flex-col justify-center items-center mb-15">
+        <p className="mb-2"><strong>Room Code:</strong> {roomCode}</p>
+        <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />
+      </div>
 
       <Teamboard title="Lag" teams={teams} />
 

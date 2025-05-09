@@ -1,45 +1,42 @@
+import { useState } from "react";
+
 import logo from "@/logo.png";
 // import "./Banner.css";
 
 export default function Banner({ label = "SPIKNUBBEN" }) {
+  const [flipped, setFlipped] = useState(false);
+
   return (
 
-      <div className="flex bg-white items-center px-5 py-5 z-5">
-        <img src={logo} alt="Logo" className="h-30 w-auto" />
+    <div className="flex bg-clouds items-center justify-center px-5 py-5 z-5">
+      <img src={logo} alt="Logo" className="h-30 w-auto" />
 
-        <div className="ml-auto text-right mt-12">
-          <h1 className="text-3xl font-bold leading-none">{label}</h1>
-          <p className="text-accent font-bold rotate-340 mt-5">2024</p>
+      <div
+        onClick={() => setFlipped(!flipped)}
+        className="ml-auto w-full h-30 text-right perspective-midrange">
+
+        <div className={`relative size-full transition duration-500 transform-3d ${flipped ? "rotate-y-180" : ""}`}>
+
+          {/* Front */}
+          <div className="absolute inset-0 size-full backface-hidden">
+            <div className="flex h-full w-full flex-col items-center justify-center bg-clouds " >
+              <h1 className="text-3xl font-bold leading-none">GRÄSHAREN-SPELEN</h1>
+            </div>
+          </div>
+
+          {/* Back */}
+          <div className="absolute inset-0 size-full backface-hidden rotate-y-180">
+            <div className="flex h-full w-full flex-col items-center justify-center bg-clouds " >
+              <h1 className="text-4xl font-bold leading-none">SPIKNUBBEN</h1>
+            </div>
+          </div>
+
         </div>
+
+        <p className="text-accent font-bold rotate-340 mt-5">2025</p>
       </div>
+
+    </div>
   );
 }
 
-//     <svg xmlns="http://www.w3.org/2000/svg" viewBox="9 11 20 5" className="w-[100%] h-auto">
-//       {/* Banner shape */}
-//       <path
-//         d="M9 13C15 13 14 11 19 11 24 11 23 13 29 13Q28 14 26 14 27 15 28 15C26 16 21 14 19 16 17 14 13 16 10 15Q11 15 12 14 10 14 9 13"
-//         stroke="#345F89"
-//         strokeWidth="0.3"
-//         fill="#D8B828"
-//       />
-//
-//       {/* Invisible path for text arching */}
-//       <defs>
-//         <path
-//           id="text-curve"
-//           d="M14 14 Q19 13 24 14"
-//           fill="none"
-//         />
-//       </defs>
-//
-//       {/* Arched text */}
-//       <text fill="#345F89" fontSize="1.31" fontWeight="bold" fontFamily="sans-serif">
-//         <textPath href="#text-curve" startOffset="50%" textAnchor="middle">
-//           {label}
-//         </textPath>
-//       </text>
-//     </svg>
-//   );
-// }
-//

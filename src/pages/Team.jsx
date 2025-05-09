@@ -1,8 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
+
 import { db } from "@/firebase-config";
 import { ScoreForm } from "@/components/scoreform";
+import { Card } from "@/components/ui";
+
 
 export default function TeamView() {
   const { teamId } = useParams();
@@ -42,16 +45,16 @@ export default function TeamView() {
   }
 
   return (
-      <div className="w-[90%] max-w-md bg-surface rounded-xl shadow-md p-6 text-center">
-      <h1 className="text-2xl font-bold mb-2">Team: {teamId}</h1>
-      <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
+      <Card >
+      <h1 className="text-2xl font-bold mb-2">Grupp: {teamId}</h1>
 
       <ScoreForm
         roomCode={roomCode}
         players={players}
         challenges={challenges}
       />
-    </div>
+    <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
+    </Card>
   );
 }
 
