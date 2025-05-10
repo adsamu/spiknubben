@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button, Modal } from "@/components/ui";
+import { ScoreForm } from "@/components/scoreform";
 
-export default function EditScoreModal({ player, onSubmit, onCancel }) {
+export default function EditScoreModal({ player, onSubmit, onCancel, roomCode, teams, challenges }) {
   const [scores, setScores] = useState(player.scores || []);
 
   const updateScore = (i, value) => {
@@ -12,23 +13,45 @@ export default function EditScoreModal({ player, onSubmit, onCancel }) {
 
   return (
     <Modal onClose={onCancel}>
-      <div className="space-y-4">
-        <p>Edit scores for <strong>{player.name}</strong></p>
-        <div className="space-y-2">
-          {scores.map((val, i) => (
-            <input
-              key={i}
-              className="border w-full p-2 rounded"
-              type="number"
-              value={val}
-              onChange={(e) => updateScore(i, e.target.value)}
-            />
-          ))}
+      <div className="flex flex-col space-y-6 w-full center-justify items-center">
+        <div className="flex w-full">
+          <ScoreForm
+            roomCode={roomCode}
+            players={[player]}
+            challenges={challenges}
+          />
+          <ScoreForm
+            roomCode={roomCode}
+            players={[player]}
+            challenges={challenges}
+          />
+
         </div>
-        <div className="flex gap-2 justify-end mt-4">
-          <Button onClick={() => onSubmit(scores)}>Save</Button>
-          <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+
+        <div className="space-y-4">
+          <p>Move <strong>{player.name}</strong> to:</p>
+          <select
+            className="w-full border rounded p-2"
+            defaultValue={player.team}
+            onChange={(e) => onSubmit(e.target.value)}
+          >
+            {teams.map((team) => (
+              <option key={team} value={team}>{team}</option>
+            ))}
+          </select>
         </div>
+    <div className="flex gap-2 items-center justify-end mt-4">
+    <Button onClick={onCancel} className="w-full mt-2">Spara</Button>
+    <Button onClick={onCancel} className="w-full mt-2">Avbryt</Button>
+    </div>
+
+        <Button size="sm" variant="destructive" onClick={(e) => {
+          e.stopPropagation();
+          setActiveModal({ type: "remove", player });
+        }}>
+          Ta bort spelare
+        </Button>
+
       </div>
     </Modal>
   );

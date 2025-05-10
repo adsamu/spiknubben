@@ -12,22 +12,22 @@ export default function JoinGame() {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const [teamName, setTeamName] = useState("");
-  const [members, setMembers] = useState([""]);
+  const [members, setMembers] = useState(Array(6).fill({ name: "", gender: "male" }));
   const [error, setError] = useState("");
 
   const handleAddMember = () => {
     setMembers([...members, ""]);
   };
 
-  const handleMemberChange = (index, value) => {
+  const handleGenderChange = (index, isMale) => {
     const newMembers = [...members];
-    newMembers[index] = value;
+    newMembers[index] = { ...newMembers[index], gender: isMale ? "male" : "female" };
     setMembers(newMembers);
   };
 
-  const handleRemoveMember = (index) => {
+  const handleNameChange = (index, value) => {
     const newMembers = [...members];
-    newMembers.splice(index, 1);
+    newMembers[index] = { ...newMembers[index], name: value };
     setMembers(newMembers);
   };
 
@@ -39,8 +39,10 @@ export default function JoinGame() {
       return;
     }
 
-    if (members.some((m) => !m.trim())) {
-      setError("All member names must be filled.");
+    const players = members.filter(({name}) => name.trim());
+
+    if (players.length === 0) {
+      setError("At least one member is required.");
       return;
     }
 
@@ -59,15 +61,14 @@ export default function JoinGame() {
 
       // Add each member as a player document under this room
       await Promise.all(
-        members.map((name) => {
+        players.map(({ name, gender }) => {
           const playerId = uuidv4();
           const playerRef = doc(db, "rooms", roomCode, "players", playerId);
 
           return setDoc(playerRef, {
             name,
+            gender,
             teamId: teamName,
-            points: 0,
-            spikar: 0,
             scores: Array(numChallenges).fill(0),
             joinedAt: serverTimestamp()
           });
@@ -87,12 +88,7 @@ export default function JoinGame() {
 
       <div className="mb-4">
         <label className="block font-semibold mb-1">Gruppnamn</label>
-        <input
-          type="text"
-          value={teamName}
-          onChange={(e) => setTeamName(e.target.value)}
-          className="w-full px-4 py-2 border rounded-md"
-        />
+        <TextInput onChange={(e) => setTeamName(e.target.value)} />
       </div>
 
       <div className="mb-4">
@@ -100,17 +96,18 @@ export default function JoinGame() {
         {members.map((member, index) => (
           <div key={index} className="flex items-center gap-2 mb-2">
             <TextInput
-              value={member}
+              value={member.name}
               placeholder={`Member ${index + 1}`}
-              handleChange={(e) => handleMemberChange(index, e.target.value)}
+              onChange={(e) => handleNameChange(index, e.target.value)}
             />
-            <Switch>
-
-              <FontAwesomeIcon icon={faMars} className="" />
-              <FontAwesomeIcon icon={faVenus} className="" />
-
+            <Switch
+              onChange={(isChecked) =>
+                handleGenderChange(index, isChecked ? "female" : "male")
+              }
+            >
+              <FontAwesomeIcon icon={faMars} />
+              <FontAwesomeIcon icon={faVenus} />
             </Switch>
-
           </div>
         ))}
 
@@ -124,12 +121,11 @@ export default function JoinGame() {
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      <button
+      <Button
         onClick={handleSubmit}
-        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
       >
         Join Team
-      </button>
+      </Button>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 import { db } from "@/firebase-config";
 import { ScoreForm } from "@/components/scoreform";
-import { Card } from "@/components/ui";
+import { Card, Switch } from "@/components/ui";
 
 
 export default function TeamView() {
@@ -45,7 +45,8 @@ export default function TeamView() {
   }
 
   return (
-      <Card >
+
+    <Card >
       <h1 className="text-2xl font-bold mb-2">Grupp: {teamId}</h1>
 
       <ScoreForm
@@ -53,8 +54,8 @@ export default function TeamView() {
         players={players}
         challenges={challenges}
       />
-    <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
-    </Card>
+      <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
+    </Card >
   );
 }
 

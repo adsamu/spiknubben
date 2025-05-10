@@ -1,13 +1,14 @@
+import React from 'react'
+
 import { Board } from '@/components/ui';
 import TeamRow from './TeamRow';
 
-export default function Teamboard({ title, teams }) {
+export default function Teamboard({ children, title}) {
+
   return (
     <Board title={title}>
       <ul className="divide-y divide-gray-200">
-        {Object.entries(teams).map(([team, players]) => (
-          <TeamRow key={team} team={team} players={players} />
-        ))}
+        {children}        
       </ul>
     </Board>
   );

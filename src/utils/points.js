@@ -5,3 +5,7 @@ export function getTotalPoints(player) {
 export function getSpikarCount(player) {
   return player.scores?.filter((score) => score === 1).length || 0;
 }
+
+export function getChallengesDone(player) {
+  return player.scores?.filter((score) => score !== 0).length
+}

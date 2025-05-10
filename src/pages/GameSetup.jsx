@@ -18,7 +18,6 @@ export default function GameSetup() {
     const code = generateRoomCode();
     await setDoc(doc(db, "rooms", code), {
       challenges,
-      teams: [],
       createdAt: new Date().toISOString(),
     });
     navigate(`/host/${code}`);

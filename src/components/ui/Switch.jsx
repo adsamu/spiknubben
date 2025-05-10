@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 
-export default function Switch({ children, handleChange }) {
+export default function Switch({ children, onChange, containerSize = "h-12 w-20", buttonSize = "h-9 w-9" }) {
   const [isChecked, setIsChecked] = useState(false)
 
   const handleCheckboxChange = () => {
     const newValue = !isChecked;
     setIsChecked(newValue);
-    handleChange(newValue);
+    onChange(newValue);
   }
 
   const childArray = React.Children.toArray(children);
@@ -21,22 +21,23 @@ export default function Switch({ children, handleChange }) {
         onChange={handleCheckboxChange}
         className="sr-only"
       />
-      <div className="flex h-12 w-20 items-center justify-center rounded-md bg-secondary shadow-card flex-none">
+      <div
+        className={`flex ${containerSize} items-center justify-center rounded-md bg-secondary shadow-card flex-none`}
+      >
         <span
-          className={`flex h-9 w-9 items-center justify-center rounded ${
-            !isChecked ? 'bg-accent2 text-white' : 'text-body-color'
-          }`}
+          className={`flex ${buttonSize} items-center justify-center rounded ${!isChecked ? "bg-accent2 text-white" : "text-body-color"
+            }`}
         >
           {firstChild}
         </span>
         <span
-          className={`flex h-9 w-9 items-center justify-center rounded ${
-            isChecked ? 'bg-accent2 text-white' : 'text-body-color'
-          }`}
+          className={`flex ${buttonSize} items-center justify-center rounded ${isChecked ? "bg-accent2 text-white" : "text-body-color"
+            }`}
         >
           {secondChild}
         </span>
       </div>
+
     </label>
   )
 }

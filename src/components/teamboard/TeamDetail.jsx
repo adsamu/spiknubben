@@ -5,7 +5,7 @@ import EditScoreModal from "./EditScoreModal";
 import ChangeTeamModal from "./ChangeTeamModal";
 import { db } from "@/firebase-config";
 
-export default function TeamDetail({ players }) {
+export default function TeamDetail({ players, roomCode, challenges }) {
   const [activeModal, setActiveModal] = useState(null); // { type: 'remove' | 'edit' | 'team', player: {...} }
   const [teams, setTeams] = useState([]);
 
@@ -44,34 +44,30 @@ export default function TeamDetail({ players }) {
 
   return (
     <div className="mt-3 rounded-lg bg-gray-50 p-4 text-sm text-gray-700 space-y-3">
-      {players.map((player) => (
-        <div key={player.id} className="flex flex-col items-center justify-between">
-          <span className="font-medium">{player.name}</span>
 
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              <Button size="sm" variant="destructive" onClick={(e) => {
-                e.stopPropagation();
-                setActiveModal({ type: "remove", player });
-              }}>
-                Remove
-              </Button>
-              <Button size="sm" variant="secondary" onClick={(e) => {
-                e.stopPropagation();
-                setActiveModal({ type: "team", player });
-              }}>
-                Change Team
-              </Button>
+      <Button size="sm" variant="destructive" onClick={(e) => {
+        e.stopPropagation();
+        setActiveModal({ type: "remove", player });
+      }}>
+        Ta bort grupp
+      </Button>
+
+      <div className="flex flex-wrap justify-between ">
+        {players.map((player) => (
+          <div key={player.id} className="flex flex-col items-center justify-between">
+            <span className="font-medium">{player.name}</span>
+
               <Button size="sm" onClick={(e) => {
                 e.stopPropagation();
                 setActiveModal({ type: "edit", player });
               }}>
-                Edit Score
+                Ändra
               </Button>
-            </div>
+
           </div>
-        </div>
-      ))}
+
+        ))}
+      </div>
 
       {/* Modal content */}
       {activeModal?.type === "remove" && (
@@ -83,20 +79,15 @@ export default function TeamDetail({ players }) {
         </ConfirmModal>
       )}
 
-      {activeModal?.type === "team" && (
-        <ChangeTeamModal
-          player={activeModal.player}
-          teams={teams}
-          onSubmit={handleChangeTeam}
-          onCancel={closeModal}
-        />
-      )}
 
       {activeModal?.type === "edit" && (
         <EditScoreModal
           player={activeModal.player}
           onSubmit={handleEditScore}
           onCancel={closeModal}
+          challenges={challenges}
+          roomCode={roomCode}
+          teams={teams}
         />
       )}
 

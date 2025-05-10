@@ -20,7 +20,6 @@ export default function ScoreForm({ roomCode, players, challenges }) {
   }, []);
 
 
-
   useEffect(() => {
     const loadScores = async () => {
       const initialScores = await Promise.all(
@@ -47,6 +46,24 @@ export default function ScoreForm({ roomCode, players, challenges }) {
 
     loadScores();
   }, [roomCode, players, challenges]);
+
+
+  // ${Date.now() - timestamps[rowIndex][colIndex] > timeLock && score !== 0 ? "bg-green-100" : ""} `}
+  const getLockedColor = (score, row, col) => {
+    const now = Date.now();
+    const lastChanged = timestamps[row][col];
+
+    if (score === 0 || lastChanged === 0 || now - lastChanged < timeLock) {
+      return "";
+    }
+
+    if (score === 1) {
+      return "bg-yellow-300";
+    }
+
+    return "bg-green-200";
+  }
+
 
   const cycleScore = async (row, col) => {
     const now = Date.now();
@@ -81,10 +98,7 @@ export default function ScoreForm({ roomCode, players, challenges }) {
     const scores = playerData?.scores || Array(challenges).fill(0);
     scores[row] = next;
 
-    const points = scores.reduce((a, b) => a + b, 0);
-    const spikar = scores.filter((s) => s === 1).length;
-
-    await updateDoc(playerRef, { scores, points, spikar });
+    await updateDoc(playerRef, { scores });
   };
 
   return (
@@ -93,6 +107,7 @@ export default function ScoreForm({ roomCode, players, challenges }) {
         <table className="table-auto border-separate min-w-full">
           <thead>
             <tr>
+              <th className="w-[48px]"></th>
               {players.map((player) => (
                 <th key={player.id} className="w-[60px] h-[120px] relative">
                   <div
@@ -108,12 +123,17 @@ export default function ScoreForm({ roomCode, players, challenges }) {
           <tbody>
             {grid.map((rowData, rowIndex) => (
               <tr key={rowIndex}>
+
+                <td className="sticky left-0 bg-surface p-2 z-10 font-bold text-center w-[48px]">
+                  <h1 className="font-bold ">{rowIndex + 1}</h1>
+                </td>
+
                 {rowData.map((score, colIndex) => (
                   <td
                     key={colIndex}
                     onClick={() => cycleScore(rowIndex, colIndex)}
                     className={`border rounded-lg px-4 py-2 text-center cursor-pointer select-none min-w-[48px] hover:bg-blue-100 
-                ${Date.now() - timestamps[rowIndex][colIndex] > timeLock && score !== 0 ? "bg-green-100" : ""} `}
+                ${getLockedColor(score, rowIndex, colIndex)} `}
                   >
                     <h1 className="font-bold text-xl">{score > 0 ? score : "-"}</h1>
                   </td>

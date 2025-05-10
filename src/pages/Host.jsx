@@ -6,7 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 
 import { db } from "@/firebase-config";
 import { Scoreboard } from "@/components/scoreboard";
-import { Teamboard } from "@/components/teamboard";
+import { Teamboard, TeamRow, TeamDetail } from "@/components/teamboard";
 import { Card } from "@/components/ui";
 import { useScoreboard } from "@/hooks/useScoreboard";
 import { groupPlayersByTeam } from "@/utils/groupPlayersByTeam";
@@ -43,9 +43,15 @@ export default function HostRoom() {
         <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />
       </div>
 
-      <Teamboard title="Lag" teams={teams} />
+      <Teamboard title="Lag" teams={teams}>
+        {Object.entries(teams).map(([team, players]) => (
+          <TeamRow key={team} team={team} players={players} challenges={roomData.challenges}>
+            <TeamDetail players={players} roomCode={roomCode} challenges={roomData.challenges} />
+          </TeamRow>
+        ))}
+      </Teamboard>
 
-      <Scoreboard title="Poängtavla" players={players} />
+      <Scoreboard title="Poängtavla" players={players}/>
     </Card>
   );
 }
