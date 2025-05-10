@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import TeamDetail from './TeamDetail'; // you can stub this for now
+
+import ProgressBar from '../ui/ProgressBar'; // you can stub this for now
 
 export default function TeamRow({ children, team, players, challenges }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -28,7 +29,8 @@ export default function TeamRow({ children, team, players, challenges }) {
         <p className="font-semibold text-gray-800">{team}</p>
 
         <div className="text-right">
-          Grenar kvar: {challengesLeft}
+          <ProgressBar done={completedChallenges} total={challenges} />
+
         </div>
       </div>
 
