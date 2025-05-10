@@ -15,17 +15,18 @@ export default function JoinGame() {
   const { roomCode } = useParams();
   const navigate = useNavigate();
   const [teamName, setTeamName] = useState("");
-  const [members, setMembers] = useState(Array(6).fill({ name: "", gender: "male" }));
+  const [members, setMembers] = useState(
+    Array.from({ length: 6 }, () => ({ name: "", gender: "male" }))
+  );
   const [error, setError] = useState("");
 
   const handleAddMember = () => {
-    setMembers([...members, ""]);
+    setMembers([...members, { name: "", gender: "male" }]);
   };
 
   const handleGenderChange = (index, gender) => {
     const newMembers = [...members];
-    newMembers[index] = { ...newMembers[index], gender: gender };
-    console.log(newMembers)
+    newMembers[index] = { ...newMembers[index], gender };
     setMembers(newMembers);
   };
 
@@ -35,37 +36,43 @@ export default function JoinGame() {
     setMembers(newMembers);
   };
 
+  const trimmedNames = members.map((m) => m.name.trim());
+  const seen = new Set();
+  const duplicateNames = trimmedNames.some((name) => {
+    if (!name) return false;
+    if (seen.has(name)) return true;
+    seen.add(name);
+    return false;
+  });
+
+  const hasTooLongNames = trimmedNames.some((name) => name.length > 10);
+  const teamNameIsEmpty = !teamName.trim();
+  const hasAtLeastOneValidName = trimmedNames.some((name) => name !== "");
+
+  const isFormValid =
+    !teamNameIsEmpty &&
+    hasAtLeastOneValidName &&
+    !hasTooLongNames &&
+    !duplicateNames;
+
   const handleSubmit = async () => {
     setError("");
 
-    if (!teamName.trim()) {
-      setError("Team name is required.");
-      return;
-    }
-
     const teamId = generateTeamId();
-
     const players = members.filter(({ name }) => name.trim());
-
-    if (players.length === 0) {
-      setError("At least one member is required.");
-      return;
-    }
 
     try {
       const roomRef = doc(db, "rooms", roomCode);
       const roomSnap = await getDoc(roomRef);
 
       if (!roomSnap.exists()) {
-        setError("Room not found.");
+        setError("Rum hittades inte.");
         return;
       }
 
       const roomData = roomSnap.data();
-      const numChallenges = roomData.challenges || 5; // default to 5 if missing
+      const numChallenges = roomData.challenges || 5;
 
-
-      // Add each member as a player document under this room
       await Promise.all(
         players.map(({ name, gender }) => {
           const playerId = uuidv4();
@@ -74,42 +81,49 @@ export default function JoinGame() {
           return setDoc(playerRef, {
             name,
             gender,
-            teamId: teamId,
-            teamName: teamName,
+            teamId,
+            teamName,
             scores: {
               1: Array(numChallenges).fill(0),
-              2: Array(numChallenges).fill(0)
+              2: Array(numChallenges).fill(0),
             },
-            joinedAt: serverTimestamp()
+            joinedAt: serverTimestamp(),
           });
         })
       );
 
       navigate(`/room/${roomCode}/team/${teamId}`);
-
     } catch (err) {
       console.error("Failed to join game:", err);
-      setError("Something went wrong. Please try again.");
+      setError("Något gick fel. Försök igen.");
     }
   };
 
   return (
     <Card>
-      <h1 className="text-2xl font-bold mb-4 text-center">Join Game: {roomCode}</h1>
+      <h1 className="text-2xl font-bold mb-4 text-center">Välkommen till Gräsharenspelen!</h1>
+      <p className="text-center text-sm text-gray-600 mb-4 px-2">
+        Skriv in ert gruppnamn och lägg till deltagare för att komma igång.
+      </p>
 
-      <div className="mb-4">
+      <div className="flex flex-col justify-center items-center mb-4">
         <label className="block font-semibold mb-1">Gruppnamn</label>
-        <TextInput onChange={(e) => setTeamName(e.target.value)} />
+        <TextInput
+          maxLength={10}
+          value={teamName}
+          onChange={(e) => setTeamName(e.target.value)}
+        />
       </div>
 
       <div className="mb-4">
-        <h3 className="font-semibold mb-2">Team Members</h3>
+        <h3 className="font-semibold mb-2">Spelare</h3>
         {members.map((member, index) => (
           <div key={index} className="flex items-center gap-2 mb-2">
             <TextInput
               value={member.name}
-              placeholder={`Member ${index + 1}`}
+              placeholder={`Spelare ${index + 1}`}
               onChange={(e) => handleNameChange(index, e.target.value)}
+              maxLength={10}
             />
             <Switch
               onChange={(isChecked) =>
@@ -126,16 +140,20 @@ export default function JoinGame() {
           onClick={handleAddMember}
           className="text-blue-500 hover:underline text-sm mt-2"
         >
-          + Add Member
+          + Lägg till fler
         </button>
       </div>
 
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-
-      <Button
-        onClick={handleSubmit}
-      >
-        Join Team
+      {/* Inline errors */}
+      <div className="text-red-500 text-sm mb-4 space-y-1">
+        {teamNameIsEmpty && <p>Lagnamn krävs.</p>}
+        {!hasAtLeastOneValidName && <p>Minst en spelare måste ha ett namn.</p>}
+        {hasTooLongNames && <p>Namn får vara max 10 tecken.</p>}
+        {duplicateNames && <p>Spelarnamn måste vara unika.</p>}
+        {error && <p>{error}</p>}
+      </div>
+      <Button onClick={handleSubmit} disabled={!isFormValid}>
+        Skapa grupp
       </Button>
     </Card>
   );

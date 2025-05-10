@@ -22,11 +22,22 @@ export function getChallengesDone(players) {
 export function groupPlayersByTeam(players) {
   const teams = {};
   players.forEach((player) => {
-    const { teamId } = player;
-    if (!teams[teamId]) teams[teamId] = [];
-    teams[teamId].push(player);
+    const { teamId, teamName } = player;
+    if (!teams[teamName]) teams[teamName] = [];
+    teams[teamName].push(player);
   });
   return teams;
+}
+
+export function getTeamMates(player, players) {
+  const teamMates = players .filter((p) => p.teamId === player.teamId && p.id !== player.id)
+  return teamMates
+}
+
+export function getTeamById(TeamId, players) {
+  const teamMates = players.filter((player) => {
+    return player.teamId === TeamId;
+  });
 }
 
 export function allTeamsFinishedRound(teams, round, challengesPerRound) {
@@ -47,6 +58,6 @@ export function allTeamsFinishedRound(teams, round, challengesPerRound) {
 
 export function allTeamsFinishedAllRounds(teams, challengesPerRound) {
   return allTeamsFinishedRound(teams, 1, challengesPerRound)
-      && allTeamsFinishedRound(teams, 2, challengesPerRound);
+    && allTeamsFinishedRound(teams, 2, challengesPerRound);
 }
 

@@ -5,12 +5,12 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 
 import { db } from "@/firebase-config";
-import { Scoreboard, PlayerDetail } from "@/components/scoreboard";
+import { Scoreboard, PlayerDetail, Leaderboard } from "@/components/scoreboard";
 import { Teamboard, TeamRow, TeamDetail } from "@/components/teamboard";
 import { Card, SortedList, Board, Accordion, ProgressBar } from "@/components/ui";
 import { useScoreboard } from "@/hooks/useScoreboard";
 import { getTotalPoints, getSpikarCount } from '@/utils/pointHelpers';
-import { getChallengesDone, groupPlayersByTeam, allTeamsFinishedRound, allTeamsFinishedAllRounds } from '@/utils/teamHelpers';
+import { getChallengesDone, groupPlayersByTeam, allTeamsFinishedRound, allTeamsFinishedAllRounds, getTeamMates } from '@/utils/teamHelpers';
 
 export default function HostRoom() {
   const { roomCode } = useParams();
@@ -41,6 +41,7 @@ export default function HostRoom() {
   const roundOneReady = allTeamsFinishedRound(teams, 1, challengesPerRound);
   const allRoundsReady = allTeamsFinishedAllRounds(teams, challengesPerRound);
 
+
   return (
     <Card>
 
@@ -63,51 +64,18 @@ export default function HostRoom() {
       >
         <div className="flex flex-col gap-6">
           {/* Male leaderboard */}
-          <Board title="Top 5 Pojkar" className="shadow-inner">
-            <SortedList
-              items={
-                players
-                  .filter((p) => p.gender === "male")
-                  .sort((a, b) => getTotalPoints(a) - getTotalPoints(b))
-                  .slice(0, 5)
-              }
-              expandable
-              renderItem={(player, isExpanded, index) => (
-                <>
-                  <div className="flex justify-between items-center">
-                    <h1 className="font-bold text-3xl">{index+1}</h1>
-                    <p>{player.name}</p>
-                    <p>{getTotalPoints(player)} poäng</p>
-                    <p>{getSpikarCount(player)} spikar</p>
-                  </div>
-                  {isExpanded && <PlayerDetail player={player} round={round} />}
-                </>
-              )}
-            />
-          </Board>
+          <Leaderboard
+            title="Top 5 Pojkar"
+            players={players.filter((p) => p.gender === "male")}
+            limit={5}
+          />
 
           {/* Female leaderboard */}
-          <Board title="Top 5 Flickor">
-            <SortedList
-              items={
-                players
-                  .filter((p) => p.gender === "female")
-                  .sort((a, b) => getTotalPoints(a) - getTotalPoints(b))
-                  .slice(0, 5)
-              }
-              expandable
-              renderItem={(player, isExpanded, index) => (
-                <>
-                  <div className="flex justify-between">
-                    <h1 className="font-bold text-3xl">{index+1}</h1>
-                    <p>{player.name}</p>
-                    <p>{getTotalPoints(player)} poäng</p>
-                  </div>
-                  {isExpanded && <PlayerDetail player={player} round={round} />}
-                </>
-              )}
-            />
-          </Board>
+          <Leaderboard
+            title="Top 5 Flickor"
+            players={players.filter((p) => p.gender === "female")}
+            limit={5}
+          />
         </div>
       </Accordion>
 
