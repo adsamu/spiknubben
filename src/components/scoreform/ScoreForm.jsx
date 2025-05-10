@@ -11,6 +11,7 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
   const [tick, setTick] = useState(0);
   const timeLock = 2000; // 2 seconds
 
+
   useEffect(() => {
     const interval = setInterval(() => {
       setTick((t) => t + 1);
@@ -45,7 +46,7 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
     };
 
     loadScores();
-  }, [roomCode, players, challenges]);
+  }, [roomCode, players, challenges, round]);
 
 
   // ${Date.now() - timestamps[rowIndex][colIndex] > timeLock && score !== 0 ? "bg-green-100" : ""} `}

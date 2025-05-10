@@ -5,11 +5,12 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 
 import { db } from "@/firebase-config";
-import { Scoreboard } from "@/components/scoreboard";
+import { Scoreboard, PlayerDetail } from "@/components/scoreboard";
 import { Teamboard, TeamRow, TeamDetail } from "@/components/teamboard";
-import { Card } from "@/components/ui";
+import { Card, SortedList, Board } from "@/components/ui";
 import { useScoreboard } from "@/hooks/useScoreboard";
 import { groupPlayersByTeam } from "@/utils/groupPlayersByTeam";
+import { getTotalPoints, getSpikarCount } from '@/utils/points';
 
 export default function HostRoom() {
   const { roomCode } = useParams();
@@ -34,6 +35,7 @@ export default function HostRoom() {
   }
 
   const teams = groupPlayersByTeam(players);
+  const round = 1
 
   return (
     <Card>
@@ -51,7 +53,23 @@ export default function HostRoom() {
         ))}
       </Teamboard>
 
-      <Scoreboard title="Poängtavla" players={players}/>
+      <Board title="Players">
+        <SortedList
+          items={players}
+          sort={(a, b) => getTotalPoints(b, round) - getTotalPoints(a, round)}
+          expandable
+          renderItem={(player, isExpanded) => (
+            <>
+              <div className="flex justify-between">
+                <p>{player.name}</p>
+                <p>{getTotalPoints(player, round)} pts</p>
+              </div>
+              {isExpanded && <PlayerDetail player={player} round={round} />}
+            </>
+          )}
+        />
+      </Board>
+
     </Card>
   );
 }

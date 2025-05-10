@@ -1,26 +1,21 @@
 import { useState } from 'react';
 import TeamDetail from './TeamDetail'; // you can stub this for now
-import { getTotalPoints, getSpikarCount, getChallengesDone } from '@/utils/points';
 
 export default function TeamRow({ children, team, players, challenges }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const totalPoints = players.reduce((acc, player) => acc + getTotalPoints(player), 0);
-  const spikarCount = players.reduce((acc, player) => acc + getSpikarCount(player), 0);
+  const round = 1; // or 2, or whatever round you want
 
-  // Transpose the score data to group scores by challenge
-  const scoresByChallenge = Array.from({ length: challenges }, (_, i) =>
-    players.map(player => player.scores[i])
+  const scoresByChallenge = Array.from({ length: challenges }, (_, challengeIndex) =>
+    players.map(player => player.scores?.[round]?.[challengeIndex] ?? 0)
   );
 
-  // Count how many challenges are completed (no zero scores)
   const completedChallenges = scoresByChallenge.filter(
     (scores) => scores.every(score => score > 0)
   ).length;
 
-  console.log(completedChallenges); // Output: 1
-
   const challengesLeft = challenges - completedChallenges;
+
 
 
 

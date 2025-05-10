@@ -15,7 +15,7 @@ export function useScoreboard(roomCode) {
       }));
 
       // Sort lowest score first
-      const sorted = data.sort((a, b) => a.scores.reduce((sum, val) => sum + val, 0) - b.scores.reduce((sum, val) => sum + val, 0));
+      const sorted = data.sort((a, b) => a.scores[1].reduce((sum, val) => sum + val, 0) - b.scores[1].reduce((sum, val) => sum + val, 0));
       setPlayers(sorted);
     });
 

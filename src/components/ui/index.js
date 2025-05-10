@@ -7,3 +7,4 @@ export { default as TextInput } from './TextInput';
 export { default as Switch } from './Switch';
 export { default as Tab } from './Tab';
 export { default as TabCard } from './TabCard';
+export { default as SortedList } from './SortedList';

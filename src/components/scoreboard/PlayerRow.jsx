@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import PlayerDetail from './PlayerDetail'; // you can stub this for now
+import { getTotalPoints, getSpikarCount } from '@/utils/points';
 
 export default function PlayerRow({ player }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const totalPoints = player.scores.reduce((sum, n) => sum + n, 0);
-  const spikarCount = player.scores.filter((n) => n === 1).length;
+  const totalPoints = getTotalPoints(player);
+  const spikarCount = getSpikarCount(player);
 
   return (
     <li
