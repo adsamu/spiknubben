@@ -11,8 +11,10 @@
   --color-accent: #DD6031;
   --color-accent2: #002c73;
   --color-surface: #f8f2e1;
+  --color-darksurface: #ead7a3;
   --color-text: #002c73;
   --color-clouds: #fafaf9;
+
 
   --animate-cloud: cloud 50s linear infinite;
 

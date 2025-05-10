@@ -5,4 +5,5 @@ export { default as ConfirmModal } from './ConfirmModal';
 export { default as Modal } from './Modal';
 export { default as TextInput } from './TextInput';
 export { default as Switch } from './Switch';
-export { default as Tabs } from './Tabs';
+export { default as Tab } from './Tab';
+export { default as TabCard } from './TabCard';

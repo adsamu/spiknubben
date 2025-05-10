@@ -4,7 +4,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase-config";
 import { ConfirmModal } from "@/components/ui";
 
-export default function ScoreForm({ roomCode, players, challenges }) {
+export default function ScoreForm({ roomCode, players, challenges, round }) {
   const [grid, setGrid] = useState([]); // score values
   const [timestamps, setTimestamps] = useState([]); // time of last update per cell
   const [confirmCell, setConfirmCell] = useState(null); // { row, col } or null
@@ -27,7 +27,7 @@ export default function ScoreForm({ roomCode, players, challenges }) {
           const playerRef = doc(db, "rooms", roomCode, "players", player.id);
           const snap = await getDoc(playerRef);
           const data = snap.data();
-          return data?.scores?.slice(0, challenges) || Array(challenges).fill(0);
+          return data?.scores?.[round] ?? Array(challenges).fill(0);
         })
       );
 
@@ -85,7 +85,7 @@ export default function ScoreForm({ roomCode, players, challenges }) {
     const next = (current + 1) % 4;
 
     updatedGrid[row][col] = next;
-    updatedTimestamps[row][col] = Date.now(); // Reset timer after confirm
+    updatedTimestamps[row][col] = Date.now();
 
     setGrid(updatedGrid);
     setTimestamps(updatedTimestamps);
@@ -95,11 +95,16 @@ export default function ScoreForm({ roomCode, players, challenges }) {
     const playerRef = doc(db, "rooms", roomCode, "players", playerId);
     const snap = await getDoc(playerRef);
     const playerData = snap.data();
-    const scores = playerData?.scores || Array(challenges).fill(0);
-    scores[row] = next;
 
-    await updateDoc(playerRef, { scores });
+    const scores = playerData.scores || {};
+    const roundScores = scores[round] || Array(challenges).fill(0);
+    roundScores[row] = next;
+
+    await updateDoc(playerRef, {
+      [`scores.${round}`]: roundScores,
+    });
   };
+
 
   return (
     <div className="w-full overflow-x-auto relative">

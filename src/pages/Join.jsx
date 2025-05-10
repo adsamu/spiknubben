@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMars, faVenus } from "@fortawesome/free-solid-svg-icons";
 
 import { db } from "@/firebase-config";
-import { Button, TextInput, Switch } from "@/components/ui";
+import { Button, TextInput, Switch, Card } from "@/components/ui";
 
 export default function JoinGame() {
   const { roomCode } = useParams();
@@ -39,7 +39,7 @@ export default function JoinGame() {
       return;
     }
 
-    const players = members.filter(({name}) => name.trim());
+    const players = members.filter(({ name }) => name.trim());
 
     if (players.length === 0) {
       setError("At least one member is required.");
@@ -69,7 +69,10 @@ export default function JoinGame() {
             name,
             gender,
             teamId: teamName,
-            scores: Array(numChallenges).fill(0),
+            scores: {
+              1: Array(numChallenges).fill(0),
+              2: Array(numChallenges).fill(0)
+            },
             joinedAt: serverTimestamp()
           });
         })
@@ -83,7 +86,7 @@ export default function JoinGame() {
   };
 
   return (
-    <div className="w-[90%] max-w-md bg-surface rounded-xl shadow-md p-6 text-center">
+    <Card>
       <h1 className="text-2xl font-bold mb-4 text-center">Join Game: {roomCode}</h1>
 
       <div className="mb-4">
@@ -126,7 +129,7 @@ export default function JoinGame() {
       >
         Join Team
       </Button>
-    </div>
+    </Card>
   );
 }
 

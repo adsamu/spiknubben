@@ -4,7 +4,7 @@ import { collection, getDocs } from "firebase/firestore";
 
 import { db } from "@/firebase-config";
 import { ScoreForm } from "@/components/scoreform";
-import { Card, Switch } from "@/components/ui";
+import { TabCard, Tab } from "@/components/ui";
 
 
 export default function TeamView() {
@@ -46,16 +46,31 @@ export default function TeamView() {
 
   return (
 
-    <Card >
-      <h1 className="text-2xl font-bold mb-2">Grupp: {teamId}</h1>
+    <TabCard>
+      <Tab label="Första rundan">
+        <h1 className="text-2xl font-bold mb-2">Grupp: {teamId}</h1>
 
-      <ScoreForm
-        roomCode={roomCode}
-        players={players}
-        challenges={challenges}
-      />
-      <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
-    </Card >
+        <ScoreForm
+          roomCode={roomCode}
+          players={players}
+          challenges={challenges}
+          round={1}
+        />
+        <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
+      </Tab>
+      <Tab label="Andra rundan" >
+        <h1 className="text-2xl font-bold mb-2">Grupp: {teamId}</h1>
+
+        <ScoreForm
+          roomCode={roomCode}
+          players={players}
+          challenges={challenges}
+          round={2}
+        />
+        <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
+      </Tab>
+    </TabCard>
+
   );
 }
 
