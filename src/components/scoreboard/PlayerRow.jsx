@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import PlayerDetail from './PlayerDetail'; // you can stub this for now
-import { getTotalPoints, getSpikarCount } from '@/utils/points';
+import { getTotalPoints, getSpikarCount } from '@/utils/pointHelpers';
 
 export default function PlayerRow({ player }) {
   const [isExpanded, setIsExpanded] = useState(false);

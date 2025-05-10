@@ -8,6 +8,9 @@ import { faMars, faVenus } from "@fortawesome/free-solid-svg-icons";
 import { db } from "@/firebase-config";
 import { Button, TextInput, Switch, Card } from "@/components/ui";
 
+const generateTeamId = () =>
+  Math.random().toString(36).substr(2, 6).toUpperCase();
+
 export default function JoinGame() {
   const { roomCode } = useParams();
   const navigate = useNavigate();
@@ -19,9 +22,10 @@ export default function JoinGame() {
     setMembers([...members, ""]);
   };
 
-  const handleGenderChange = (index, isMale) => {
+  const handleGenderChange = (index, gender) => {
     const newMembers = [...members];
-    newMembers[index] = { ...newMembers[index], gender: isMale ? "male" : "female" };
+    newMembers[index] = { ...newMembers[index], gender: gender };
+    console.log(newMembers)
     setMembers(newMembers);
   };
 
@@ -38,6 +42,8 @@ export default function JoinGame() {
       setError("Team name is required.");
       return;
     }
+
+    const teamId = generateTeamId();
 
     const players = members.filter(({ name }) => name.trim());
 
@@ -68,7 +74,8 @@ export default function JoinGame() {
           return setDoc(playerRef, {
             name,
             gender,
-            teamId: teamName,
+            teamId: teamId,
+            teamName: teamName,
             scores: {
               1: Array(numChallenges).fill(0),
               2: Array(numChallenges).fill(0)
@@ -78,7 +85,8 @@ export default function JoinGame() {
         })
       );
 
-      navigate(`/team/${teamName}`);
+      navigate(`/room/${roomCode}/team/${teamId}`);
+
     } catch (err) {
       console.error("Failed to join game:", err);
       setError("Something went wrong. Please try again.");

@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";
 import { Button, ConfirmModal } from "@/components/ui";
-import EditScoreModal from "./EditScoreModal";
-import ChangeTeamModal from "./ChangeTeamModal";
+import EditPlayer from "./EditPlayer";
 import { db } from "@/firebase-config";
 
 export default function TeamDetail({ players, roomCode, challenges }) {

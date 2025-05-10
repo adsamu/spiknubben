@@ -13,7 +13,7 @@ function App() {
           <Route path="/" element={<GameSetup />} />
           <Route path="/host/:roomCode" element={<Host />} />
           <Route path="/join/:roomCode" element={<Join />} />
-          <Route path="/team/:teamId" element={<Team />} />
+          <Route path="/room/:roomCode/team/:teamId" element={<Team />} />
         </Route>
       </Routes>
     </Router>

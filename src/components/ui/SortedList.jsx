@@ -16,8 +16,8 @@ export default function SortedList({
 
   return (
     <ul className="divide-y divide-gray-200">
-      {sorted.map((item) => {
-        const id = item.id ?? item.name;
+      {sorted.map((item, index) => {
+        const id = item.id ?? index;
         const isExpanded = expandable && expandedId === id;
 
         return (
@@ -26,7 +26,7 @@ export default function SortedList({
             onClick={() => expandable && toggleExpand(id)}
             className={`py-4 px-2 transition rounded-md cursor-${expandable ? "pointer" : "default"} hover:bg-gray-50`}
           >
-            {renderItem(item, isExpanded)}
+            {renderItem(item, isExpanded, index)}
           </li>
         );
       })}

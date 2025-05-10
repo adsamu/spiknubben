@@ -6,71 +6,59 @@ import { db } from "@/firebase-config";
 import { ScoreForm } from "@/components/scoreform";
 import { TabCard, Tab } from "@/components/ui";
 
-
 export default function TeamView() {
-  const { teamId } = useParams();
-  const [roomCode, setRoomCode] = useState(null);
+  const { roomCode, teamId } = useParams();
   const [players, setPlayers] = useState([]);
   const [challenges, setChallenges] = useState(0);
+  const [teamName, setTeamName] = useState("");
 
   useEffect(() => {
     const loadTeam = async () => {
-      const roomsCol = collection(db, "rooms");
-      const roomDocs = await getDocs(roomsCol);
+      const playersCol = collection(db, "rooms", roomCode, "players");
+      const playersSnap = await getDocs(playersCol);
 
-      for (const docSnap of roomDocs.docs) {
-        const roomId = docSnap.id;
-        const roomData = docSnap.data();
+      const teamPlayers = playersSnap.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((p) => p.teamId === teamId);
 
-        const playersCol = collection(db, "rooms", roomId, "players");
-        const playersSnap = await getDocs(playersCol);
-        const teamPlayers = playersSnap.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((p) => p.teamId === teamId);
+      if (teamPlayers.length > 0) {
+        setPlayers(teamPlayers);
+        setTeamName(teamPlayers[0].teamName || "Unknown Team");
 
-        if (teamPlayers.length > 0) {
-          setPlayers(teamPlayers);
-          setChallenges(roomData.challenges);
-          setRoomCode(roomId);
-          break;
-        }
+        const roomSnap = await getDocs(collection(db, "rooms"));
+        const room = roomSnap.docs.find((d) => d.id === roomCode);
+        const challenges = room?.data()?.challenges || 5;
+
+        setChallenges(challenges);
       }
     };
 
     loadTeam();
-  }, [teamId]);
+  }, [roomCode, teamId]);
 
-  if (!roomCode || players.length === 0) {
+  if (players.length === 0) {
     return <p className="text-center mt-10">Loading team...</p>;
   }
 
   return (
-
     <TabCard>
-      <Tab label="Första rundan">
-        <h1 className="text-2xl font-bold mb-2">Grupp: {teamId}</h1>
+      {[1, 2].map((round) => (
+        <Tab key={round} label={`Runda ${round}`}>
+          <div className="w-full flex justify-center">
+            <h1 className="text-2xl font-bold mb-2">{teamName}</h1>
+          </div>
 
-        <ScoreForm
-          roomCode={roomCode}
-          players={players}
-          challenges={challenges}
-          round={1}
-        />
-        <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
-      </Tab>
-      <Tab label="Andra rundan" >
-        <h1 className="text-2xl font-bold mb-2">Grupp: {teamId}</h1>
+          <ScoreForm
+            roomCode={roomCode}
+            players={players}
+            challenges={challenges}
+            round={round}
+          />
 
-        <ScoreForm
-          roomCode={roomCode}
-          players={players}
-          challenges={challenges}
-          round={2}
-        />
-        <p className="text-gray-600 mb-6">Room Code: {roomCode}</p>
-      </Tab>
+          <p className="text-gray-600 mb-6 text-center">Room Code: {roomCode}</p>
+        </Tab>
+      ))}
     </TabCard>
-
   );
 }
 

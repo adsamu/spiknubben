@@ -62,7 +62,12 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
       return "bg-yellow-300";
     }
 
-    return "bg-green-200";
+    if (score === 2) {
+      return "bg-green-300";
+    }
+
+    return "bg-orange-300";
+
   }
 
 
@@ -115,7 +120,7 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
             <tr>
               <th className="w-[48px]"></th>
               {players.map((player) => (
-                <th key={player.id} className="w-[60px] h-[120px] relative">
+                <th key={player.id} className="w-[60px] h-[90px] relative">
                   <div
                     className="absolute bottom-2 left-1/2 transform -rotate-70 origin-bottom-left whitespace-nowrap"
                   >

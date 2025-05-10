@@ -7,7 +7,7 @@ export default function TabCard({ children }) {
 
   return (
     <div className="flex flex-col w-full">
-      <div className="flex justify-center space-x-2 px-2 overflow-hidden">
+      <div className="flex justify-center space-x-2 px-3 overflow-hidden">
         {tabs.map((child, index) =>
           cloneElement(child, {
             index,

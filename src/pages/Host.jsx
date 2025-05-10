@@ -7,10 +7,10 @@ import { QRCodeSVG } from "qrcode.react";
 import { db } from "@/firebase-config";
 import { Scoreboard, PlayerDetail } from "@/components/scoreboard";
 import { Teamboard, TeamRow, TeamDetail } from "@/components/teamboard";
-import { Card, SortedList, Board } from "@/components/ui";
+import { Card, SortedList, Board, Accordion, ProgressBar } from "@/components/ui";
 import { useScoreboard } from "@/hooks/useScoreboard";
-import { groupPlayersByTeam } from "@/utils/groupPlayersByTeam";
-import { getTotalPoints, getSpikarCount } from '@/utils/points';
+import { getTotalPoints, getSpikarCount } from '@/utils/pointHelpers';
+import { getChallengesDone, groupPlayersByTeam, allTeamsFinishedRound, allTeamsFinishedAllRounds } from '@/utils/teamHelpers';
 
 export default function HostRoom() {
   const { roomCode } = useParams();
@@ -36,6 +36,10 @@ export default function HostRoom() {
 
   const teams = groupPlayersByTeam(players);
   const round = 1
+  const challengesPerRound = roomData.challenges;
+
+  const roundOneReady = allTeamsFinishedRound(teams, 1, challengesPerRound);
+  const allRoundsReady = allTeamsFinishedAllRounds(teams, challengesPerRound);
 
   return (
     <Card>
@@ -45,30 +49,97 @@ export default function HostRoom() {
         <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />
       </div>
 
-      <Teamboard title="Lag" teams={teams}>
-        {Object.entries(teams).map(([team, players]) => (
-          <TeamRow key={team} team={team} players={players} challenges={roomData.challenges}>
-            <TeamDetail players={players} roomCode={roomCode} challenges={roomData.challenges} />
-          </TeamRow>
-        ))}
-      </Teamboard>
 
-      <Board title="Players">
+      <Accordion
+        title="Inga spikar efter första rundan"
+        locked={!roundOneReady}
+      >
+        <p>Challenge breakdown and scores go here.</p>
+      </Accordion>
+
+      <Accordion
+        title="Final"
+        locked={!allRoundsReady}
+      >
+        <div className="flex flex-col gap-6">
+          {/* Male leaderboard */}
+          <Board title="Top 5 Pojkar" className="shadow-inner">
+            <SortedList
+              items={
+                players
+                  .filter((p) => p.gender === "male")
+                  .sort((a, b) => getTotalPoints(a) - getTotalPoints(b))
+                  .slice(0, 5)
+              }
+              expandable
+              renderItem={(player, isExpanded, index) => (
+                <>
+                  <div className="flex justify-between items-center">
+                    <h1 className="font-bold text-3xl">{index+1}</h1>
+                    <p>{player.name}</p>
+                    <p>{getTotalPoints(player)} poäng</p>
+                    <p>{getSpikarCount(player)} spikar</p>
+                  </div>
+                  {isExpanded && <PlayerDetail player={player} round={round} />}
+                </>
+              )}
+            />
+          </Board>
+
+          {/* Female leaderboard */}
+          <Board title="Top 5 Flickor">
+            <SortedList
+              items={
+                players
+                  .filter((p) => p.gender === "female")
+                  .sort((a, b) => getTotalPoints(a) - getTotalPoints(b))
+                  .slice(0, 5)
+              }
+              expandable
+              renderItem={(player, isExpanded, index) => (
+                <>
+                  <div className="flex justify-between">
+                    <h1 className="font-bold text-3xl">{index+1}</h1>
+                    <p>{player.name}</p>
+                    <p>{getTotalPoints(player)} poäng</p>
+                  </div>
+                  {isExpanded && <PlayerDetail player={player} round={round} />}
+                </>
+              )}
+            />
+          </Board>
+        </div>
+      </Accordion>
+
+
+      <div className="w-full h-full">
         <SortedList
-          items={players}
-          sort={(a, b) => getTotalPoints(b, round) - getTotalPoints(a, round)}
-          expandable
-          renderItem={(player, isExpanded) => (
-            <>
-              <div className="flex justify-between">
-                <p>{player.name}</p>
-                <p>{getTotalPoints(player, round)} pts</p>
+          title="Teams"
+          items={Object.entries(teams)}
+          sort={(a, b) => getChallengesDone(b[1]) - getChallengesDone(a[1])}
+          renderItem={([teamName, players]) => (
+
+            <div className="w-full">
+              <p className="font-semibold text-xl text-gray-800">{teamName}</p>
+              <div className="text-right">
+                <ProgressBar done={getChallengesDone(players)} total={roomData.challenges * 2} />
               </div>
-              {isExpanded && <PlayerDetail player={player} round={round} />}
-            </>
+            </div>
+
           )}
         />
-      </Board>
+      </div>
+
+
+      <Accordion title="Advanced Settings" >
+        <Teamboard title="Lag" teams={teams}>
+          {Object.entries(teams).map(([team, players]) => (
+            <TeamRow key={team} team={team} players={players} challenges={roomData.challenges}>
+              <TeamDetail players={players} roomCode={roomCode} challenges={roomData.challenges} />
+            </TeamRow>
+          ))}
+        </Teamboard>
+      </Accordion>
 
     </Card>
   );

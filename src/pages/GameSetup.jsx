@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 
 import { db } from "@/firebase-config";
 import { Button } from "@/components/ui";
-import { Banner } from "@/components/layout";
 
 const generateRoomCode = () =>
   Math.random().toString(36).substr(2, 6).toUpperCase();

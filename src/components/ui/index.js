@@ -9,3 +9,4 @@ export { default as Tab } from './Tab';
 export { default as TabCard } from './TabCard';
 export { default as SortedList } from './SortedList';
 export { default as ProgressBar } from './ProgressBar';
+export { default as Accordion } from './Accordion';
