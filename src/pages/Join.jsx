@@ -146,8 +146,8 @@ export default function JoinGame() {
 
       {/* Inline errors */}
       <div className="text-red-500 text-sm mb-4 space-y-1">
-        {teamNameIsEmpty && <p>Lagnamn krävs.</p>}
-        {!hasAtLeastOneValidName && <p>Minst en spelare måste ha ett namn.</p>}
+        {teamNameIsEmpty && <p>Gruppnamn krävs.</p>}
+        {!hasAtLeastOneValidName && <p>Lägg till minst en spelare.</p>}
         {hasTooLongNames && <p>Namn får vara max 10 tecken.</p>}
         {duplicateNames && <p>Spelarnamn måste vara unika.</p>}
         {error && <p>{error}</p>}
