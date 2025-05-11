@@ -1,17 +1,13 @@
-import { TabCard, Tab } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
+import { AnimatedPage } from "@/animation";
 
 export default function Demo() {
   return (
-    <TabCard>
-      <Tab label="Overview">
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt...
-        </p>
-      </Tab>
-      <Tab label="Members" disabled>
-        <p>List of members</p>
-      </Tab>
-    </TabCard>
+    <AnimatedPage className="w-full max-w-md mx-auto" >
+      <Card>
 
+
+      </Card>
+    </AnimatedPage>
   );
 }

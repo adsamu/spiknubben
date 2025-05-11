@@ -9,7 +9,7 @@ export default function Layout() {
 
       <Background />      
 
-      <main className="flex-1 flex items-start justify-center px-4 mt-10 z-5">
+      <main className="flex-1 flex items-start justify-center px-4 mt-10 z-20">
         <Outlet />
       </main>
     </div>

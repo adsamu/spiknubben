@@ -8,9 +8,11 @@ import { db } from "@/firebase-config";
 import { Scoreboard, PlayerDetail, Leaderboard } from "@/components/scoreboard";
 import { Teamboard, TeamRow, TeamDetail } from "@/components/teamboard";
 import { Card, SortedList, Board, Accordion, ProgressBar } from "@/components/ui";
+import { AnimatedPage } from "@/animation";
 import { useScoreboard } from "@/hooks/useScoreboard";
 import { getTotalPoints, getSpikarCount } from '@/utils/pointHelpers';
 import { getChallengesDone, groupPlayersByTeam, allTeamsFinishedRound, allTeamsFinishedAllRounds, getTeamMates } from '@/utils/teamHelpers';
+
 
 export default function HostRoom() {
   const { roomCode } = useParams();
@@ -43,73 +45,76 @@ export default function HostRoom() {
 
 
   return (
-    <Card>
+    <AnimatedPage className="w-full max-w-md mx-auto" >
+      <Card>
 
-      <div className="flex flex-col justify-center items-center mb-15">
-        <p className="mb-2"><strong>Room Code:</strong> {roomCode}</p>
-        <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />
-      </div>
+        <div className="flex flex-col justify-center items-center mb-15">
+          <p className="mb-2"><strong>Room Code:</strong> {roomCode}</p>
+          <QRCodeSVG value={`${window.location.origin}/join/${roomCode}`} />
+        </div>
 
 
-      <Accordion
-        title="Inga spikar efter första rundan"
-        locked={!roundOneReady}
-      >
-        <p>Challenge breakdown and scores go here.</p>
-      </Accordion>
+        <Accordion
+          title="Inga spikar efter första rundan"
+          locked={!roundOneReady}
+        >
+          <p>Challenge breakdown and scores go here.</p>
+        </Accordion>
 
-      <Accordion
-        title="Final"
-        locked={!allRoundsReady}
-      >
-        <div className="flex flex-col gap-6">
-          {/* Male leaderboard */}
-          <Leaderboard
-            title="Top 5 Pojkar"
-            players={players.filter((p) => p.gender === "male")}
-            limit={5}
-          />
+        <Accordion
+          title="Final"
+          locked={!allRoundsReady}
+        >
+          <div className="flex flex-col gap-6">
+            {/* Male leaderboard */}
+            <Leaderboard
+              title="Top 5 Pojkar"
+              players={players.filter((p) => p.gender === "male")}
+              limit={5}
+            />
 
-          {/* Female leaderboard */}
-          <Leaderboard
-            title="Top 5 Flickor"
-            players={players.filter((p) => p.gender === "female")}
-            limit={5}
+            {/* Female leaderboard */}
+            <Leaderboard
+              title="Top 5 Flickor"
+              players={players.filter((p) => p.gender === "female")}
+              limit={5}
+            />
+          </div>
+        </Accordion>
+
+
+        <div className="w-full h-full">
+          <SortedList
+            title="Teams"
+            items={Object.entries(teams)}
+            sort={(a, b) => getChallengesDone(b[1]) - getChallengesDone(a[1])}
+            renderItem={([teamName, players]) => (
+
+              <div className="w-full">
+                <p className="font-semibold text-xl text-gray-800">{teamName}</p>
+                <div className="text-right">
+                  <ProgressBar done={getChallengesDone(players)} total={roomData.challenges * 2} />
+                </div>
+              </div>
+
+            )}
           />
         </div>
-      </Accordion>
 
 
-      <div className="w-full h-full">
-        <SortedList
-          title="Teams"
-          items={Object.entries(teams)}
-          sort={(a, b) => getChallengesDone(b[1]) - getChallengesDone(a[1])}
-          renderItem={([teamName, players]) => (
+        <Accordion title="Advanced Settings" >
+          <Teamboard title="Lag" teams={teams}>
+            {Object.entries(teams).map(([team, players]) => (
+              <TeamRow key={team} team={team} players={players} challenges={roomData.challenges}>
+                <TeamDetail players={players} roomCode={roomCode} challenges={roomData.challenges} />
+              </TeamRow>
+            ))}
+          </Teamboard>
+        </Accordion>
 
-            <div className="w-full">
-              <p className="font-semibold text-xl text-gray-800">{teamName}</p>
-              <div className="text-right">
-                <ProgressBar done={getChallengesDone(players)} total={roomData.challenges * 2} />
-              </div>
-            </div>
+      </Card>
+    </AnimatedPage>
 
-          )}
-        />
-      </div>
-
-
-      <Accordion title="Advanced Settings" >
-        <Teamboard title="Lag" teams={teams}>
-          {Object.entries(teams).map(([team, players]) => (
-            <TeamRow key={team} team={team} players={players} challenges={roomData.challenges}>
-              <TeamDetail players={players} roomCode={roomCode} challenges={roomData.challenges} />
-            </TeamRow>
-          ))}
-        </Teamboard>
-      </Accordion>
-
-    </Card>
   );
 }
 
