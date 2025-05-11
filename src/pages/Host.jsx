@@ -54,16 +54,22 @@ export default function HostRoom() {
         </div>
 
 
+    {/*locked={!roundOneReady}*/}
         <Accordion
-          title="Inga spikar efter första rundan"
-          locked={!roundOneReady}
+          title="En gratis nubbe till..."
+          locked={false}
         >
-          <p>Challenge breakdown and scores go here.</p>
+            <Leaderboard
+              title=""
+              players={players.filter((p) => getSpikarCount(p) === 0)}
+              limit={5}
+            />
         </Accordion>
 
+    {/*locked={!allRoundsReady}*/}
         <Accordion
-          title="Final"
-          locked={!allRoundsReady}
+          title="Poängställning"
+          locked={false}
         >
           <div className="flex flex-col gap-6">
             {/* Male leaderboard */}
@@ -102,7 +108,7 @@ export default function HostRoom() {
         </div>
 
 
-        <Accordion title="Advanced Settings" >
+        <Accordion title="Advanced Settings" locked={true}>
           <Teamboard title="Lag" teams={teams}>
             {Object.entries(teams).map(([team, players]) => (
               <TeamRow key={team} team={team} players={players} challenges={roomData.challenges}>

@@ -1,80 +1,81 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { collection, getDocs } from "firebase/firestore";
 
 import { db } from "@/firebase-config";
 import { ScoreForm } from "@/components/scoreform";
-import { TabCard, Tab, Button, Modal, MemberInput } from "@/components/ui";
+import { Leaderboard } from "@/components/scoreboard";
+import {
+  TabCard,
+  Tab,
+  Button,
+  Modal,
+  DeletePlayer,
+  AddPlayersForm,
+  AddPlayersError,
+} from "@/components/ui";
 import { AnimatedPage } from "@/animation";
-import { addPlayers } from "@/utils/firestore";
+import { addPlayers, deletePlayer } from "@/utils/firestore";
 import { validatePlayersForm } from "@/utils/validation";
+import { useTeamPlayers } from "@/hooks/useTeamPlayers";
 
 export default function TeamView() {
   const { roomCode, teamId } = useParams();
-  const [players, setPlayers] = useState([]);
+  const { players, teamName } = useTeamPlayers(roomCode, teamId);
+
   const [challenges, setChallenges] = useState(0);
-  const [teamName, setTeamName] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [members, setMembers] = useState(
-    Array.from({ length: 6 }, () => ({ name: "", gender: "male" }))
-  );
+  const [members, setMembers] = useState([{ name: "", gender: "male" }]);
   const [error, setError] = useState("");
   const inputRefs = useRef([]);
 
+  const validation = useMemo(() => {
+    return validatePlayersForm(teamName, members, players);
+  }, [teamName, members, players]);
+
   useEffect(() => {
-    const loadTeam = async () => {
-      const playersCol = collection(db, "rooms", roomCode, "players");
-      const playersSnap = await getDocs(playersCol);
-
-      const teamPlayers = playersSnap.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((p) => p.teamId === teamId);
-
-      if (teamPlayers.length > 0) {
-        setPlayers(teamPlayers);
-        setTeamName(teamPlayers[0].teamName || "Unknown Team");
-
-        const roomSnap = await getDocs(collection(db, "rooms"));
-        const room = roomSnap.docs.find((d) => d.id === roomCode);
-        const challenges = room?.data()?.challenges || 5;
-
-        setChallenges(challenges);
-      }
+    const loadRoom = async () => {
+      const roomsSnap = await getDocs(collection(db, "rooms"));
+      const room = roomsSnap.docs.find((d) => d.id === roomCode);
+      const challengeCount = room?.data()?.challenges || 5;
+      setChallenges(challengeCount);
     };
 
-    loadTeam();
-  }, [roomCode, teamId]);
+    loadRoom();
+  }, [roomCode]);
 
-  if (players.length === 0) {
-    return <p className="text-center mt-10">Loading team...</p>;
-  }
+  const handleDeletePlayer = async (playerId) => {
+    try {
+      await deletePlayer(roomCode, playerId);
+    } catch (err) {
+      console.error("Error deleting player:", err);
+      setError("Kunde inte ta bort spelare.");
+    }
+  };
 
   const handleAddPlayer = async () => {
-    const { isFormValid } = validatePlayersForm(teamName, members);
+    const { isFormValid } = validatePlayersForm(teamName, members, players);
     if (!isFormValid) {
-      setError("Kontrollera att spelarnamnet är unikt, kort nog och att gruppnamnet finns.");
+      setError(
+        "Kontrollera att spelarnamnet är unikt, kort nog och att gruppnamnet finns."
+      );
       return;
     }
 
     try {
-      await addPlayers({
-        roomCode,
-        teamId,
-        teamName,
-        players: members,
-      });
+      await addPlayers({ roomCode, teamId, teamName, players: members });
     } catch (err) {
       console.error("Error adding player:", err);
       setError("Något gick fel. Försök igen.");
     }
   };
 
-  return (
+  if (players.length === 0) {
+    return <p className="text-center mt-10">Loading team...</p>;
+  }
 
-    <AnimatedPage
-      className="w-full max-w-md mx-auto"
-      animation={"rl"}
-    >
+  return (
+    <AnimatedPage className="w-full max-w-md mx-auto" animation="rl">
       <TabCard>
         {[1, 2].map((round) => (
           <Tab key={round} label={`Runda ${round}`}>
@@ -89,16 +90,28 @@ export default function TeamView() {
               round={round}
             />
 
-            <p className="text-gray-600 mb-6 text-center">Grupp ID: {teamId}</p>
+            <p className="text-gray-600 mb-6 text-center">
+              Grupp ID: {teamId}
+            </p>
           </Tab>
         ))}
+        <Tab label="Poängställning">
+
+          <div className="flex flex-col gap-6">
+            {/* Male leaderboard */}
+            <Leaderboard
+              title=""
+              players={players}
+              limit={20}
+              expandable={false}
+            />
+          </div>
+        </Tab>
       </TabCard>
 
       <div className="text-center mt-4">
         <button
-          onClick={() => {
-            setShowModal(true);
-          }}
+          onClick={() => setShowModal(true)}
           className="text-sm text-blue-500 hover:underline"
         >
           Hantera spelare
@@ -106,27 +119,40 @@ export default function TeamView() {
       </div>
 
       {showModal && (
-        <Modal
-          onClose={() => setShowModal(false)}>
-          <h2 className="text-xl font-semibold mb-4 text-center">
-            Lägg till spelare i {teamName}
-          </h2>
+        <Modal onClose={() => setShowModal(false)}>
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Lägg till spelare
+            </h2>
 
-          {members.map((member, index) => (
-            <MemberInput
-              member={member}
-              index={index}
-              onNameChange={(_, val) => setMembers({ ...member, name: val })}
-              onGenderChange={(_, gender) => setMembers({ ...member, gender })}
-              inputRef={(el) => (inputRefs.current[index] = el)}
-            />))}
+            <AddPlayersForm
+              members={members}
+              setMembers={setMembers}
+              inputRefs={inputRefs}
+              showAddButton={true}
+            />
 
-          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-          <Button onClick={handleAddPlayer}>Lägg till spelare</Button>
+            <AddPlayersError validation={validation} backendError={error} />
 
+            <div className="flex items-center justify-center">
+              <Button onClick={handleAddPlayer} disabled={!validation.isFormValid}>
+                Lägg till spelare
+              </Button>
+            </div>
+
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Ta bort spelare
+            </h2>
+
+            <DeletePlayer players={players} onDelete={handleDeletePlayer} />
+          </div>
+        <div className="flex items-center justify-center mt-4">
+          <Button onClick={() => setShowModal(false)} >
+            Stäng
+          </Button>
+        </div>
         </Modal>
       )}
-
     </AnimatedPage>
   );
 }

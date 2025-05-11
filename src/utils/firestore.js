@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc, getDocs, collection, serverTimestamp } from "firebase/firestore";
+import { deleteDoc, doc, getDoc, setDoc, getDocs, collection, serverTimestamp } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/firebase-config";
 
@@ -31,5 +31,10 @@ export async function addPlayers({ roomCode, teamId, teamName, players }) {
       });
     })
   );
+}
+
+export async function deletePlayer(roomCode, playerId) {
+  const playerRef = doc(db, "rooms", roomCode, "players", playerId);
+  await deleteDoc(playerRef);
 }
 

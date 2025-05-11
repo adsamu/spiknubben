@@ -28,7 +28,7 @@ export default function Modal({ children, onClose }) {
       }}
     >
       <div
-        className="bg-white p-6 rounded-xl shadow-lg min-w-[280px] max-w-md w-full"
+        className="bg-white p-6 rounded-xl shadow-lg min-w-[280px] max-w-md max-h-[80vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()} // ✅ Prevent inner content from closing modal
       >
         {children}

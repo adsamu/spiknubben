@@ -1,25 +1,15 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 
 import { db } from "@/firebase-config";
 import { ConfirmModal } from "@/components/ui";
 
 export default function ScoreForm({ roomCode, players, challenges, round }) {
-  const [grid, setGrid] = useState([]); // score values
-  const [timestamps, setTimestamps] = useState([]); // time of last update per cell
-  const [confirmCell, setConfirmCell] = useState(null); // { row, col } or null
-  const [tick, setTick] = useState(0);
+  const [grid, setGrid] = useState([]);
+  const [lockedCells, setLockedCells] = useState([]);
+  const [confirmCell, setConfirmCell] = useState(null);
+  const cellTimers = useRef([]);
   const timeLock = 2000; // 2 seconds
-
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTick((t) => t + 1);
-    }, 1000); // re-render every second
-
-    return () => clearInterval(interval);
-  }, []);
-
 
   useEffect(() => {
     const loadScores = async () => {
@@ -36,67 +26,89 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
         players.map((_, colIndex) => initialScores[colIndex][rowIndex])
       );
 
-      const now = Date.now();
-      const initialTimestamps = transposed.map((row) =>
-        row.map((score) => (score === 0 ? 0 : now - timeLock - 1))
+      // Merge new scores into local grid
+      setGrid(prevGrid =>
+        transposed.map((row, r) =>
+          row.map((newScore, c) => {
+            const oldScore = prevGrid?.[r]?.[c];
+            return oldScore !== undefined ? newScore : newScore;
+          })
+        )
       );
 
-      setGrid(transposed);
-      setTimestamps(initialTimestamps);
+      // Merge locked state with local logic (preserve unlocked if recently interacted)
+      setLockedCells((prevLocks) =>
+        transposed.map((row, r) =>
+          row.map((score, c) => {
+            // Don't lock unset cells (score === 0)
+            if (score === 0) return false;
+            // Preserve current unlocked state if user just interacted
+            return prevLocks?.[r]?.[c] ?? true;
+          })
+        )
+      );
+
     };
 
     loadScores();
   }, [roomCode, players, challenges, round]);
 
+  console.log("tes");
 
-  // ${Date.now() - timestamps[rowIndex][colIndex] > timeLock && score !== 0 ? "bg-green-100" : ""} `}
   const getLockedColor = (score, row, col) => {
-    const now = Date.now();
-    const lastChanged = timestamps[row][col];
-
-    if (score === 0 || lastChanged === 0 || now - lastChanged < timeLock) {
-      return "";
+    switch (score) {
+      case 1:
+        return "bg-[#FFD700]"; // gold
+      case 2:
+        return "bg-[#C0C0C0]"; // silver
+      case 3:
+        return "bg-[#CD7F32]"; // bronze
+      default:
+        return "";
     }
+  };
 
-    if (score === 1) {
-      return "bg-yellow-300";
+  const cycleScore = (row, col) => {
+    if (!lockedCells[row][col]) {
+      applyScore(row, col);
+    } else {
+      setConfirmCell({ row, col });
     }
-
-    if (score === 2) {
-      return "bg-green-300";
-    }
-
-    return "bg-orange-300";
-
-  }
-
-
-  const cycleScore = async (row, col) => {
-    const now = Date.now();
-    const score = grid[row][col];
-    const lastChanged = timestamps[row][col];
-
-    if (score === 0 || lastChanged === 0 || now - lastChanged < timeLock) {
-      return applyScore(row, col);
-    }
-
-    setConfirmCell({ row, col });
   };
 
   const applyScore = async (row, col) => {
-    const updatedGrid = [...grid];
-    const updatedTimestamps = [...timestamps];
+    const updatedGrid = grid.map((r) => [...r]);
+    const updatedLockedCells = lockedCells.map((r) => [...r]);
 
     const current = grid[row][col];
     const next = (current + 1) % 4;
 
     updatedGrid[row][col] = next;
-    updatedTimestamps[row][col] = Date.now();
-
     setGrid(updatedGrid);
-    setTimestamps(updatedTimestamps);
+
+    updatedLockedCells[row][col] = false;
+    setLockedCells(updatedLockedCells);
     setConfirmCell(null);
 
+    // 🔁 Clear existing timer
+    if (cellTimers.current[row]?.[col]) {
+      clearTimeout(cellTimers.current[row][col]);
+    }
+
+    // 🔁 Set new lock timer
+    if (!cellTimers.current[row]) cellTimers.current[row] = [];
+
+    if (next !== 0) {
+      cellTimers.current[row][col] = setTimeout(() => {
+        setLockedCells((prev) => {
+          const copy = prev.map((r) => [...r]);
+          copy[row][col] = true;
+          return copy;
+        });
+      }, timeLock);
+    }
+
+    // 🔄 Firestore update
     const playerId = players[col].id;
     const playerRef = doc(db, "rooms", roomCode, "players", playerId);
     const snap = await getDoc(playerRef);
@@ -111,7 +123,6 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
     });
   };
 
-
   return (
     <div className="w-full overflow-x-auto relative">
       <div className="inline-block min-w-full">
@@ -120,10 +131,8 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
             <tr>
               <th className="w-[48px]"></th>
               {players.map((player) => (
-                <th key={player.id} className="w-[60px] h-[90px] relative">
-                  <div
-                    className="absolute bottom-2 left-1/2 transform -rotate-70 origin-bottom-left whitespace-nowrap"
-                  >
+                <th key={player.id} className="w-[60px] h-[115px] relative">
+                  <div className="absolute bottom-2 left-1/2 transform -rotate-70 origin-bottom-left whitespace-nowrap">
                     {player.name}
                   </div>
                 </th>
@@ -134,9 +143,8 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
           <tbody>
             {grid.map((rowData, rowIndex) => (
               <tr key={rowIndex}>
-
                 <td className="sticky left-0 bg-surface p-2 z-10 font-bold text-center w-[48px]">
-                  <h1 className="font-bold ">{rowIndex + 1}</h1>
+                  <h1 className="font-bold">{rowIndex + 1}</h1>
                 </td>
 
                 {rowData.map((score, colIndex) => (
@@ -144,7 +152,9 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
                     key={colIndex}
                     onClick={() => cycleScore(rowIndex, colIndex)}
                     className={`border rounded-lg px-4 py-2 text-center cursor-pointer select-none min-w-[48px] hover:bg-blue-100 
-                ${getLockedColor(score, rowIndex, colIndex)} `}
+                      ${getLockedColor(score, rowIndex, colIndex)} 
+                      ${lockedCells[rowIndex]?.[colIndex] ? "opacity-70 " : ""}
+                    `}
                   >
                     <h1 className="font-bold text-xl">{score > 0 ? score : "-"}</h1>
                   </td>
@@ -160,13 +170,14 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
           onConfirm={() => applyScore(confirmCell.row, confirmCell.col)}
           onCancel={() => setConfirmCell(null)}
         >
-          <p className="mb-4 text-lg">
-            Change score for Challenge {confirmCell.row + 1}, {players[confirmCell.col].name}?
-          </p>
+          <div className="flex justify-center">
+            <p className="mb-4 text-lg">
+              Ändre {players[confirmCell.col].name}'s poäng?
+            </p>
+          </div>
         </ConfirmModal>
       )}
     </div>
-
   );
 }
 

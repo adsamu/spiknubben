@@ -4,8 +4,9 @@ import { Switch, TextInput } from "@/components/ui";
 
 export default function MemberInput({ member, index, onNameChange, onGenderChange, inputRef }) {
   return (
-    <div className="flex items-center gap-2 mb-2">
+    <div key={index} className="flex items-center gap-2 mb-2">
       <TextInput
+        key={index}
         ref={inputRef}
         value={member.name}
         onChange={(e) => onNameChange(index, e.target.value)}

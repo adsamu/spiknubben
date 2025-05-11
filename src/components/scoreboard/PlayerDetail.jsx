@@ -6,7 +6,9 @@ export default function PlayerDetail({ player, teamMates }) {
       </p>
       <p>
         <strong>Spelade med:</strong>{" "}
-        {teamMates.length > 0 ? teamMates : "Ingen"}
+        {teamMates.length > 0
+          ? teamMates.map((mate) => mate.name).join(", ")
+          : "Ingen"}
       </p>
       <p className="text-xs text-gray-400 mt-2">ID: {player.id}</p>
     </div>

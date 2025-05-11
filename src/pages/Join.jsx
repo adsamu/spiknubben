@@ -1,13 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { doc, getDoc, setDoc, getDocs, collection, serverTimestamp } from "firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMars, faVenus } from "@fortawesome/free-solid-svg-icons";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 
 import { db } from "@/firebase-config";
-import { Button, TextInput, Switch, Card } from "@/components/ui";
+import { Button, TextInput, Card, AddPlayersForm, AddPlayersError } from "@/components/ui";
 import { AnimatedPage } from "@/animation";
+import { addPlayers } from "@/utils/firestore";
+import { validatePlayersForm } from "@/utils/validation";
 
 const generateTeamId = () =>
   Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -15,6 +14,7 @@ const generateTeamId = () =>
 export default function JoinGame() {
   const { roomCode } = useParams();
   const navigate = useNavigate();
+
   const [teamName, setTeamName] = useState("");
   const [members, setMembers] = useState(
     Array.from({ length: 6 }, () => ({ name: "", gender: "male" }))
@@ -23,16 +23,16 @@ export default function JoinGame() {
   const inputRefs = useRef([]);
   const teamNameRef = useRef(null);
 
-
-
-
-
   const [availableTeams, setAvailableTeams] = useState([]);
   const [showTeamList, setShowTeamList] = useState(false);
 
+  const validation = useMemo(() => {
+    return validatePlayersForm(teamName, members, []);
+  }, [teamName, members]);
+
   useEffect(() => {
     const fetchTeams = async () => {
-      const teamsSet = new Set(); // to avoid duplicates
+      const teamsSet = new Set();
       const playersRef = collection(db, "rooms", roomCode, "players");
       const playerSnaps = await getDocs(playersRef);
 
@@ -50,55 +50,19 @@ export default function JoinGame() {
     if (showTeamList) fetchTeams();
   }, [roomCode, showTeamList]);
 
-
-
-
-
-  const handleAddMember = () => {
-    setMembers([...members, { name: "", gender: "male" }]);
-  };
-
-  const handleGenderChange = (index, gender) => {
-    const newMembers = [...members];
-    newMembers[index] = { ...newMembers[index], gender };
-    setMembers(newMembers);
-  };
-
-  const handleNameChange = (index, value) => {
-    const newMembers = [...members];
-    newMembers[index] = { ...newMembers[index], name: value };
-    setMembers(newMembers);
-  };
-
-  const trimmedNames = members.map((m) => m.name.trim());
-  const seen = new Set();
-  const duplicateNames = trimmedNames.some((name) => {
-    if (!name) return false;
-    if (seen.has(name)) return true;
-    seen.add(name);
-    return false;
-  });
-
-  const hasTooLongNames = trimmedNames.some((name) => name.length > 10);
-  const teamNameIsEmpty = !teamName.trim();
-  const hasAtLeastOneValidName = trimmedNames.some((name) => name !== "");
-
-  const isFormValid =
-    !teamNameIsEmpty &&
-    hasAtLeastOneValidName &&
-    !hasTooLongNames &&
-    !duplicateNames;
-
   const handleSubmit = async () => {
-    setError("");
-
-    const teamId = generateTeamId();
-    const players = members.filter(({ name }) => name.trim());
+    const { isFormValid } = validatePlayersForm(teamName, members);
+    if (!isFormValid) {
+      setError("Kontrollera att gruppnamn finns och att spelarnamn är unika, giltiga och korta.");
+      return;
+    }
 
     try {
+      const teamId = generateTeamId();
+      const players = members.filter(({ name }) => name.trim());
+
       const roomRef = doc(db, "rooms", roomCode);
       const roomSnap = await getDoc(roomRef);
-
       if (!roomSnap.exists()) {
         setError("Rum hittades inte.");
         return;
@@ -107,24 +71,13 @@ export default function JoinGame() {
       const roomData = roomSnap.data();
       const numChallenges = roomData.challenges || 5;
 
-      await Promise.all(
-        players.map(({ name, gender }) => {
-          const playerId = uuidv4();
-          const playerRef = doc(db, "rooms", roomCode, "players", playerId);
-
-          return setDoc(playerRef, {
-            name,
-            gender,
-            teamId,
-            teamName,
-            scores: {
-              1: Array(numChallenges).fill(0),
-              2: Array(numChallenges).fill(0),
-            },
-            joinedAt: serverTimestamp(),
-          });
-        })
-      );
+      await addPlayers({
+        roomCode,
+        teamId,
+        teamName,
+        players,
+        numChallenges,
+      });
 
       navigate(`/room/${roomCode}/team/${teamId}`);
     } catch (err) {
@@ -133,14 +86,12 @@ export default function JoinGame() {
     }
   };
 
-
-
   return (
-    <AnimatedPage
-      className="w-full max-w-md mx-auto"
-    >
+    <AnimatedPage className="w-full max-w-md mx-auto">
       <Card>
-        <h1 className="text-2xl font-bold mb-4 text-center">Välkommen till Gräsharenspelen!</h1>
+        <h1 className="text-2xl font-bold mb-4 text-center">
+          Välkommen till Gräsharenspelen!
+        </h1>
         <p className="text-center text-sm text-gray-600 mb-4 px-2">
           Skriv in ert gruppnamn och lägg till deltagare för att komma igång.
         </p>
@@ -155,59 +106,21 @@ export default function JoinGame() {
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                if (inputRefs.current[0]) inputRefs.current[0].focus();
+                inputRefs.current[0]?.focus();
               }
             }}
           />
         </div>
 
-        <div className="mb-4">
-          <h3 className="font-semibold mb-2">Spelare</h3>
-          {members.map((member, index) => (
-            <div key={index} className="flex items-center gap-2 mb-2">
-              <TextInput
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    const next = inputRefs.current[index + 1];
-                    if (next) { next.focus(); } else { document.activeElement.blur(); }
-                  }
-                }}
-                value={member.name}
-                onChange={(e) => handleNameChange(index, e.target.value)}
-                maxLength={10}
-                placeholder={`Spelare ${index + 1}`}
-              />
-              <Switch
-                onChange={(isChecked) =>
-                  handleGenderChange(index, isChecked ? "female" : "male")
-                }
-              >
-                <FontAwesomeIcon icon={faMars} />
-                <FontAwesomeIcon icon={faVenus} />
-              </Switch>
-            </div>
-          ))}
+        <AddPlayersForm
+          members={members}
+          setMembers={setMembers}
+          inputRefs={inputRefs}
+        />
 
-          <button
-            onClick={handleAddMember}
-            className="text-blue-500 hover:underline text-sm mt-2"
-          >
-            + Lägg till fler
-          </button>
-        </div>
+        <AddPlayersError validation={validation} backendError={error} />
 
-        {/* Inline errors */}
-        <div className="text-red-500 text-sm mb-4 space-y-1">
-          {teamNameIsEmpty && <p>Gruppnamn krävs.</p>}
-          {!hasAtLeastOneValidName && <p>Lägg till minst en spelare.</p>}
-          {hasTooLongNames && <p>Namn får vara max 10 tecken.</p>}
-          {duplicateNames && <p>Spelarnamn måste vara unika.</p>}
-          {error && <p>{error}</p>}
-        </div>
-        <Button onClick={handleSubmit} disabled={!isFormValid}>
+        <Button onClick={handleSubmit} disabled={!validation.isFormValid}>
           Skapa grupp
         </Button>
       </Card>
@@ -221,12 +134,14 @@ export default function JoinGame() {
         </button>
 
         {showTeamList && (
-          <div className="mt-3 space-y-2 flex flex-col ">
+          <div className="mt-3 space-y-2 flex flex-col">
             {availableTeams.length > 0 ? (
               availableTeams.map((team) => (
                 <button
                   key={team.id}
-                  onClick={() => navigate(`/room/${roomCode}/team/${team.id}`)}
+                  onClick={() =>
+                    navigate(`/room/${roomCode}/team/${team.id}`)
+                  }
                   className="block text-center text-white underline rounded hover:bg-gray-50"
                 >
                   {team.name} ({team.id})
@@ -238,7 +153,6 @@ export default function JoinGame() {
           </div>
         )}
       </div>
-
     </AnimatedPage>
   );
 }

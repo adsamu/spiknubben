@@ -14,8 +14,7 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait" initial={true}>
       <Routes location={location} key={location.pathname}>
         <Route element={<Layout />}>
-          <Route path="/test" element={<Home />} />
-          <Route path="/" element={<GameSetup />} />
+          <Route path="/" element={<Home />} />
           <Route path="/host/:roomCode" element={<Host />} />
           <Route path="/join/:roomCode" element={<Join />} />
           <Route path="/room/:roomCode/team/:teamId" element={<Team />} />
