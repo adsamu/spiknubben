@@ -11,6 +11,7 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
   const cellTimers = useRef([]);
   // Add in your component or global store
   const [toast, setToast] = useState("");
+  const prevScoresRef = useRef({});
   const timeLock = 2000; // 2 seconds
 
   // Show toast
@@ -23,11 +24,27 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
   useEffect(() => {
 
     const loadScores = async () => {
+      const changed = Array.from({ length: challenges }, () =>
+        Array.from({ length: players.length }, () => false)
+      );
 
       // Load scores
       const initialScores = await Promise.all(
-        players.map(async (player) => {
-          return player?.scores?.[round] ?? Array(challenges).fill(0);
+        players.map(async (player, col) => {
+          const playerId = player.id;
+          const scores = player?.scores?.[round] ?? Array(challenges).fill(0);
+          const prev = prevScoresRef.current[playerId] ?? [];
+
+          scores.forEach((score, row) => {
+
+            if (score !== prev[row]) {
+              changed[row][col] = true;
+              console.log("old score", prev[row], "New score:", score);
+            }
+          });
+
+          prevScoresRef.current[playerId] = scores;
+          return scores;
         })
       );
 
@@ -35,10 +52,17 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
       const transposed = Array.from({ length: challenges }, (_, rowIndex) =>
         players.map((_, colIndex) => initialScores[colIndex][rowIndex])
       );
-      setGrid(transposed);
+
+
+      // Update only changed cells in grid
+      setGrid((prevGrid) =>
+        transposed.map((rowData, row) =>
+          rowData.map((score, col) => (changed[row][col] ? score : prevGrid?.[row]?.[col] ?? score))
+        )
+      );
 
       // Merge locked state with local logic (preserve unlocked if recently interacted)
-      setLockedCells(( ) =>
+      setLockedCells(() =>
         transposed.map((row) =>
           row.map((score) => {
             return score === 0 ? false : true;
@@ -52,7 +76,7 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
   }, [roomCode, players, challenges, round]);
 
 
-  const getLockedColor = (score, row, col) => {
+  const getLockedColor = (score) => {
     switch (score) {
       case 1:
         return "bg-[#FFD700]"; // gold
