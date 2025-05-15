@@ -33,7 +33,7 @@ export default function HostRoom() {
   }, [roomCode]);
 
   if (!roomData) {
-    return <p>Loading room data...</p>;
+    return <p></p>;
   }
 
   const teams = groupPlayersByTeam(players);

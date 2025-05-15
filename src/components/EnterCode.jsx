@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-export default function EnterCode({ length = 6, onComplete }) {
+export default function EnterCode({ length = 6, onComplete, className = "" }) {
   const [values, setValues] = useState(Array(length).fill(""));
   const inputsRef = useRef([]);
 
@@ -27,7 +27,7 @@ export default function EnterCode({ length = 6, onComplete }) {
   };
 
   return (
-    <div className="flex gap-2 justify-center">
+    <div className={`flex w-full gap-2 justify-center ${className}`}>
       {values.map((char, index) => (
         <input
           key={index}
@@ -37,7 +37,7 @@ export default function EnterCode({ length = 6, onComplete }) {
           ref={(el) => (inputsRef.current[index] = el)}
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(e, index)}
-          className="w-12 h-12 text-center text-xl font-mono border rounded border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+          className="w-full max-w-12 h-12 text-center text-xl font-mono border rounded border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
         />
       ))}
     </div>

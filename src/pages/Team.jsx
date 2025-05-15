@@ -71,7 +71,7 @@ export default function TeamView() {
   };
 
   if (players.length === 0) {
-    return <p className="text-center mt-10">Loading team...</p>;
+    return <p className="text-center mt-10"></p>;
   }
 
   return (

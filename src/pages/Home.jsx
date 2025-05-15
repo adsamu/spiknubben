@@ -42,7 +42,10 @@ export default function Home() {
       <Card>
         <h1 className="text-2xl font-bold text-center mb-4">Anslut till ett spel</h1>
 
-        <EnterCode ref={codeRef} onComplete={handleJoinCode} />
+        <EnterCode 
+    ref={codeRef} 
+    onComplete={handleJoinCode} 
+    className="px-4"/>
 
         {error && (
           <p className="text-red-500 text-center text-sm mt-2">{error}</p>

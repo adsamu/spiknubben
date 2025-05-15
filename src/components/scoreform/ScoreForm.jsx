@@ -9,41 +9,39 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
   const [lockedCells, setLockedCells] = useState([]);
   const [confirmCell, setConfirmCell] = useState(null);
   const cellTimers = useRef([]);
+  // Add in your component or global store
+  const [toast, setToast] = useState("");
   const timeLock = 2000; // 2 seconds
 
+  // Show toast
+  const showToast = (message) => {
+    setToast(message);
+    setTimeout(() => setToast(""), 3000);
+  };
+
+
   useEffect(() => {
+
     const loadScores = async () => {
+
+      // Load scores
       const initialScores = await Promise.all(
         players.map(async (player) => {
-          const playerRef = doc(db, "rooms", roomCode, "players", player.id);
-          const snap = await getDoc(playerRef);
-          const data = snap.data();
-          return data?.scores?.[round] ?? Array(challenges).fill(0);
+          return player?.scores?.[round] ?? Array(challenges).fill(0);
         })
       );
 
+      // Transpose the score from (player, challenge) to (challenge, player)
       const transposed = Array.from({ length: challenges }, (_, rowIndex) =>
         players.map((_, colIndex) => initialScores[colIndex][rowIndex])
       );
-
-      // Merge new scores into local grid
-      setGrid(prevGrid =>
-        transposed.map((row, r) =>
-          row.map((newScore, c) => {
-            const oldScore = prevGrid?.[r]?.[c];
-            return oldScore !== undefined ? newScore : newScore;
-          })
-        )
-      );
+      setGrid(transposed);
 
       // Merge locked state with local logic (preserve unlocked if recently interacted)
-      setLockedCells((prevLocks) =>
-        transposed.map((row, r) =>
-          row.map((score, c) => {
-            // Don't lock unset cells (score === 0)
-            if (score === 0) return false;
-            // Preserve current unlocked state if user just interacted
-            return prevLocks?.[r]?.[c] ?? true;
+      setLockedCells(( ) =>
+        transposed.map((row) =>
+          row.map((score) => {
+            return score === 0 ? false : true;
           })
         )
       );
@@ -53,7 +51,6 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
     loadScores();
   }, [roomCode, players, challenges, round]);
 
-  console.log("tes");
 
   const getLockedColor = (score, row, col) => {
     switch (score) {
@@ -98,35 +95,44 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
     // 🔁 Set new lock timer
     if (!cellTimers.current[row]) cellTimers.current[row] = [];
 
-    if (next !== 0) {
-      cellTimers.current[row][col] = setTimeout(() => {
-        setLockedCells((prev) => {
-          const copy = prev.map((r) => [...r]);
-          copy[row][col] = true;
-          return copy;
-        });
-      }, timeLock);
-    }
+    cellTimers.current[row][col] = setTimeout(() => {
 
-    // 🔄 Firestore update
-    const playerId = players[col].id;
-    const playerRef = doc(db, "rooms", roomCode, "players", playerId);
-    const snap = await getDoc(playerRef);
-    const playerData = snap.data();
+      const attemptUpdate = async () => {
+        try {
+          const playerId = players[col].id;
+          const playerRef = doc(db, "rooms", roomCode, "players", playerId);
+          const snap = await getDoc(playerRef);
+          const playerData = snap.data();
+          const scores = playerData.scores || {};
+          const roundScores = scores[round] || Array(challenges).fill(0);
 
-    const scores = playerData.scores || {};
-    const roundScores = scores[round] || Array(challenges).fill(0);
-    roundScores[row] = next;
+          // Get latest score from local grid state
+          roundScores[row] = next;
 
-    await updateDoc(playerRef, {
-      [`scores.${round}`]: roundScores,
-    });
+          await updateDoc(playerRef, {
+            [`scores.${round}`]: roundScores,
+          });
+
+        } catch (error) {
+          console.error("⚠️ Firestore update failed:", error);
+
+          // ✅ Notify user (via toast, alert, etc.)
+          showToast("Kunde inte spara. Försöker igen...");
+
+          // ⏱️ Retry after 1 second
+          setTimeout(attemptUpdate, 1000);
+        }
+      };
+
+      attemptUpdate();
+    }, timeLock);
   };
+
 
   return (
     <div className="w-full overflow-x-auto relative">
       <div className="inline-block min-w-full">
-        <table className="table-auto border-separate min-w-full">
+        <table className="table-auto border-spacing-x-2 border-separate min-w-full">
           <thead>
             <tr>
               <th className="w-[48px]"></th>
@@ -165,6 +171,11 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
         </table>
       </div>
 
+      {toast && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
+          {toast}
+        </div>
+      )}
       {confirmCell && (
         <ConfirmModal
           onConfirm={() => applyScore(confirmCell.row, confirmCell.col)}
@@ -172,7 +183,7 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
         >
           <div className="flex justify-center">
             <p className="mb-4 text-lg">
-              Ändre {players[confirmCell.col].name}'s poäng?
+              Ändra {players[confirmCell.col].name}'s poäng?
             </p>
           </div>
         </ConfirmModal>

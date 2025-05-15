@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import logo from "@/logo.png";
 
 // import "./Banner.css";
 export default function Banner({ label = "SPIKNUBBEN" }) {
@@ -10,7 +9,7 @@ export default function Banner({ label = "SPIKNUBBEN" }) {
     <div className="relative w-full bg-clouds z-10">
       <div className="flex items-center justify-between px-4 py-6 max-w-7xl mx-auto">
 
-          <img src={logo} alt="Logo" className="h-20 w-auto" />
+          <img src="/logo.png" alt="Logo" className="h-20 w-auto" />
 
       <div
         onClick={() => setFlipped(!flipped)}
@@ -21,14 +20,14 @@ export default function Banner({ label = "SPIKNUBBEN" }) {
           {/* Front */}
           <div className="absolute inset-0 size-full backface-hidden">
             <div className="flex h-full w-full items-center justify-center bg-clouds " >
-              <h1 className="text-4xl font-bold leading-none">GRÄSHAREN-SPELEN</h1>
+              <h1 className="text-4xl font-bold text-accent2 leading-none">GRÄSHAREN-SPELEN</h1>
             </div>
           </div>
 
           {/* Back */}
           <div className="absolute inset-0 size-full backface-hidden rotate-x-180">
             <div className="flex h-full w-full flex-col items-center justify-center bg-clouds " >
-              <h1 className="text-4xl font-bold leading-none">SPIKNUBBEN</h1>
+              <h1 className="text-4xl font-bold text-accent2 leading-none">SPIKNUBBEN</h1>
             </div>
           </div>
 

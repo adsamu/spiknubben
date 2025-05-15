@@ -121,7 +121,7 @@ export default function JoinGame() {
         <AddPlayersError validation={validation} backendError={error} />
 
         <Button onClick={handleSubmit} disabled={!validation.isFormValid}>
-          Skapa grupp
+          Skapa grupp protokoll
         </Button>
       </Card>
 
