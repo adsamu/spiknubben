@@ -17,8 +17,31 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
   // Show toast
   const showToast = (message) => {
     setToast(message);
-    setTimeout(() => setToast(""), 3000);
+    // setTimeout(() => setToast(""), 3000);
   };
+
+  useEffect(() => {
+    const updateStatus = () => {
+      if (!navigator.onLine) {
+        showToast("Ingen internetuppkoppling");
+      } else {
+        setToast(""); // Clear any existing toast
+      }
+    };
+
+    // Initial check
+    updateStatus();
+
+    // Listen to network changes
+    window.addEventListener("online", updateStatus);
+    window.addEventListener("offline", updateStatus);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("online", updateStatus);
+      window.removeEventListener("offline", updateStatus);
+    };
+  }, []);
 
 
   useEffect(() => {
