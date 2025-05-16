@@ -9,11 +9,11 @@ export default function Banner({ label = "SPIKNUBBEN" }) {
     <div className="relative w-full bg-clouds z-10">
       <div className="flex items-center justify-between px-4 py-6 max-w-7xl mx-auto">
 
-          <img src="/logo.png" alt="Logo" className="h-20 w-auto" />
+          <img src="/logo.png" alt="Logo" className="z-10 h-20 w-auto" />
 
       <div
         onClick={() => setFlipped(!flipped)}
-        className="w-full h-30 text-right perspective-midrange">
+        className="w-full h-30 z-5 text-right perspective-midrange">
 
         <div className={`relative size-full transition duration-200 transform-3d ${flipped ? "rotate-x-180" : ""}`}>
 
