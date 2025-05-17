@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, collection } from "firebase/firestore";
 
 import { Card, Button } from "@/components/ui";
 import { AnimatedPage } from "@/animation";
@@ -13,6 +13,8 @@ const generateRoomCode = () =>
 export default function Home() {
   const [challenges, setChallenges] = useState(5);
   const [error, setError] = useState("");
+  const [showRooms, setShowRooms] = useState(false);
+  const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
   const codeRef = useRef(null);
 
@@ -37,15 +39,35 @@ export default function Home() {
     }
   };
 
+  const fetchRooms = async () => {
+    const snap = await getDocs(collection(db, "rooms"));
+    const roomList = snap.docs
+      .map(doc => ({
+        code: doc.id,
+        ...doc.data(),
+      }))
+      .filter(room => room.createdAt)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    setRooms(roomList);
+  };
+
+  useEffect(() => {
+    if (showRooms && rooms.length === 0) {
+      fetchRooms();
+    }
+  }, [showRooms]);
+
   return (
     <AnimatedPage className="w-full max-w-md mx-auto">
       <Card>
         <h1 className="text-2xl font-bold text-center mb-4">Anslut till ett spel</h1>
 
         <EnterCode 
-    ref={codeRef} 
-    onComplete={handleJoinCode} 
-    className="px-4"/>
+          ref={codeRef} 
+          onComplete={handleJoinCode} 
+          className="px-4"
+        />
 
         {error && (
           <p className="text-red-500 text-center text-sm mt-2">{error}</p>
@@ -73,6 +95,40 @@ export default function Home() {
             Starta spel
           </Button>
         </div>
+
+        {/* Toggle to show room list */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => setShowRooms(prev => !prev)}
+            className="text-sm text-gray-500 hover:underline"
+          >
+            {showRooms ? "Dölj spelrum" : "Visa alla spelrum"}
+          </button>
+        </div>
+
+        {/* Room list */}
+        {showRooms && (
+          <div className="mt-4 max-h-[300px] overflow-y-auto border-t pt-4">
+            {rooms.length === 0 ? (
+              <p className="text-sm text-gray-400 text-center">Inga spelrum hittades.</p>
+            ) : (
+              <ul className="space-y-2 px-2">
+                {rooms.map((room) => (
+                  <li
+                    key={room.code}
+                    onClick={() => navigate(`/host/${room.code}`)}
+                    className="cursor-pointer p-2 rounded hover:bg-gray-100"
+                  >
+                    <p className="font-medium text-sm">{room.code}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(room.createdAt).toLocaleString("sv-SE")}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </Card>
     </AnimatedPage>
   );

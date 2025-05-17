@@ -36,6 +36,22 @@ export default function TeamView() {
   }, [teamName, members, players]);
 
   useEffect(() => {
+    const handlePopState = () => {
+      // Force reload instead of going back
+      window.location.reload();
+    };
+
+    // Push a dummy state to prevent back navigation
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+
+  useEffect(() => {
     const loadRoom = async () => {
       const roomsSnap = await getDocs(collection(db, "rooms"));
       const room = roomsSnap.docs.find((d) => d.id === roomCode);
@@ -166,7 +182,7 @@ export default function TeamView() {
           </div>
           <div className="flex gap-5 items-center justify-center mt-4">
 
-            <Button onClick={() => {handleEditPlayers(modifiedMembers); setShowModal(false)}} >
+            <Button onClick={() => { handleEditPlayers(modifiedMembers); setShowModal(false) }} >
               Spara
             </Button>
 

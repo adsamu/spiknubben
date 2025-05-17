@@ -1,4 +1,4 @@
-import { updateDoc, deleteDoc, doc, getDoc, setDoc, getDocs, collection, serverTimestamp } from "firebase/firestore";
+import { writeBatch, updateDoc, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "@/firebase-config";
 
@@ -33,6 +33,11 @@ export async function addPlayers({ roomCode, teamId, teamName, players }) {
   );
 }
 
+export const editPlayer = async (roomCode, playerId, edits) => {
+  const playerRef = doc(db, "rooms", roomCode, "players", playerId);
+  await updateDoc(playerRef, edits);
+}
+
 export const deletePlayer = async (roomCode, playerId) => {
   const playerRef = doc(db, "rooms", roomCode, "players", playerId);
   const deletedRef = doc(db, "rooms", roomCode, "deleted", playerId);
@@ -44,31 +49,34 @@ export const deletePlayer = async (roomCode, playerId) => {
 
   const playerData = snapshot.data();
 
-  // Save to 'deleted'
-  await setDoc(deletedRef, {
+  const batch = writeBatch(db);
+  batch.set(deletedRef, {
     ...playerData,
-    deletedAt: Date.now(), // optional timestamp
+    deletedAt: Date.now(),
   });
+  batch.delete(playerRef);
 
-  // Remove from 'players'
-  await deleteDoc(playerRef);
+  await batch.commit();
 };
-
-export const editPlayer = async (roomCode, playerId, edits) => {
-  const playerRef = doc(db, "rooms", roomCode, "players", playerId);
-  await updateDoc(playerRef, edits);
-}
 
 export const restorePlayer = async (roomCode, playerId) => {
   const deletedRef = doc(db, "rooms", roomCode, "deleted", playerId);
   const playerRef = doc(db, "rooms", roomCode, "players", playerId);
 
-  const snap = await getDoc(deletedRef);
-  if (!snap.exists()) throw new Error("Deleted player not found");
+  const snapshot = await getDoc(deletedRef);
+  if (!snapshot.exists()) {
+    throw new Error("Deleted player not found");
+  }
 
-  await setDoc(playerRef, snap.data());
-  await deleteDoc(deletedRef);
+  const playerData = snapshot.data();
+
+  const batch = writeBatch(db);
+  batch.set(playerRef, playerData);
+  batch.delete(deletedRef);
+
+  await batch.commit();
 };
+
 
 export const movePlayerToTeam = async (roomCode, playerId, newTeamId, newTeamName) => {
   const playerRef = doc(db, "rooms", roomCode, "players", playerId);

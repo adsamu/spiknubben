@@ -11,6 +11,7 @@ import { Card, SortedList, Board, Accordion, ProgressBar } from "@/components/ui
 import { AnimatedPage } from "@/animation";
 import { useScoreboard } from "@/hooks/useScoreboard";
 import { getChallengesDone, groupPlayersByTeam, allTeamsFinishedRound, allTeamsFinishedAllRounds } from '@/utils/teamHelpers';
+import { getSpikarCount } from "@/utils/pointHelpers";
 import AdvancedPlayerTools from "@/components/AdvancedPlayerTools";
 
 
@@ -62,7 +63,7 @@ export default function HostRoom() {
           <Leaderboard
             title=""
             players={players}
-            filter={(p) => p.spikarCount === 0}
+            filter={(p) => getSpikarCount(p) === 0}
             limit={5}
           />
         </Accordion>
