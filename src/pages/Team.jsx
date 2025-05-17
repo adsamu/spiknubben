@@ -63,6 +63,7 @@ export default function TeamView() {
       console.error("Error editing or deleting player:", err);
       setError("Kunde inte uppdatera spelare.");
     }
+    setModifiedMembers([]);
   };
 
   const handleAddPlayer = async () => {
@@ -86,7 +87,6 @@ export default function TeamView() {
     return <p className="text-center mt-10"></p>;
   }
 
-  console.log("modifiedMembers", modifiedMembers);
 
   return (
     <AnimatedPage className="w-full max-w-md mx-auto" animation="rl">
