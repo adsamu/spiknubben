@@ -15,3 +15,4 @@ export { default as MemberInput } from './input/MemberInput';
 export { default as DeletePlayer } from './input/DeletePlayer';
 export { default as AddPlayersForm } from './input/AddPlayersForm';
 export { default as AddPlayersError } from './input/AddPlayersError';
+export { default as EditPlayersForm } from './input/EditPlayersForm';

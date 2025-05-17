@@ -13,9 +13,10 @@ import {
   DeletePlayer,
   AddPlayersForm,
   AddPlayersError,
+  EditPlayersForm,
 } from "@/components/ui";
 import { AnimatedPage } from "@/animation";
-import { addPlayers, deletePlayer } from "@/utils/firestore";
+import { addPlayers, deletePlayer, editPlayer } from "@/utils/firestore";
 import { validatePlayersForm } from "@/utils/validation";
 import { useTeamPlayers } from "@/hooks/useTeamPlayers";
 
@@ -25,7 +26,8 @@ export default function TeamView() {
 
   const [challenges, setChallenges] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [members, setMembers] = useState([{ name: "", gender: "male" }]);
+  const [members, setMembers] = useState([{ name: "", gender: "male", deleted: false }]);
+  const [modifiedMembers, setModifiedMembers] = useState([]);
   const [error, setError] = useState("");
   const inputRefs = useRef([]);
 
@@ -44,12 +46,22 @@ export default function TeamView() {
     loadRoom();
   }, [roomCode]);
 
-  const handleDeletePlayer = async (playerId) => {
+  const handleEditPlayers = async (modifiedMembers) => {
     try {
-      await deletePlayer(roomCode, playerId);
+      const editPromises = modifiedMembers.map(async (member) => {
+        const { id, deleted, ...edits } = member;
+
+        if (deleted) {
+          await deletePlayer(roomCode, id);
+        } else if (Object.keys(edits).length > 0) {
+          await editPlayer(roomCode, id, edits);
+        }
+      });
+
+      await Promise.all(editPromises);
     } catch (err) {
-      console.error("Error deleting player:", err);
-      setError("Kunde inte ta bort spelare.");
+      console.error("Error editing or deleting player:", err);
+      setError("Kunde inte uppdatera spelare.");
     }
   };
 
@@ -73,6 +85,8 @@ export default function TeamView() {
   if (players.length === 0) {
     return <p className="text-center mt-10"></p>;
   }
+
+  console.log("modifiedMembers", modifiedMembers);
 
   return (
     <AnimatedPage className="w-full max-w-md mx-auto" animation="rl">
@@ -131,7 +145,6 @@ export default function TeamView() {
               inputRefs={inputRefs}
               showAddButton={true}
             />
-
             <AddPlayersError validation={validation} backendError={error} />
 
             <div className="flex items-center justify-center">
@@ -141,16 +154,26 @@ export default function TeamView() {
             </div>
 
             <h2 className="text-xl font-semibold mb-4 text-center">
-              Ta bort spelare
+              Ändra spelare
             </h2>
 
-            <DeletePlayer players={players} onDelete={handleDeletePlayer} />
+            <EditPlayersForm
+              players={players}
+              modifiedMembers={modifiedMembers}
+              setModifiedMembers={setModifiedMembers}
+            />
+
           </div>
-        <div className="flex items-center justify-center mt-4">
-          <Button onClick={() => setShowModal(false)} >
-            Stäng
-          </Button>
-        </div>
+          <div className="flex gap-5 items-center justify-center mt-4">
+
+            <Button onClick={() => {handleEditPlayers(modifiedMembers); setShowModal(false)}} >
+              Spara
+            </Button>
+
+            <Button onClick={() => setShowModal(false)} >
+              Stäng
+            </Button>
+          </div>
         </Modal>
       )}
     </AnimatedPage>
