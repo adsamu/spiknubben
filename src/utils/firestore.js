@@ -33,12 +33,45 @@ export async function addPlayers({ roomCode, teamId, teamName, players }) {
   );
 }
 
-export async function deletePlayer(roomCode, playerId) {
+export const deletePlayer = async (roomCode, playerId) => {
   const playerRef = doc(db, "rooms", roomCode, "players", playerId);
+  const deletedRef = doc(db, "rooms", roomCode, "deleted", playerId);
+
+  const snapshot = await getDoc(playerRef);
+  if (!snapshot.exists()) {
+    throw new Error("Player not found");
+  }
+
+  const playerData = snapshot.data();
+
+  // Save to 'deleted'
+  await setDoc(deletedRef, {
+    ...playerData,
+    deletedAt: Date.now(), // optional timestamp
+  });
+
+  // Remove from 'players'
   await deleteDoc(playerRef);
-}
+};
 
 export const editPlayer = async (roomCode, playerId, edits) => {
   const playerRef = doc(db, "rooms", roomCode, "players", playerId);
   await updateDoc(playerRef, edits);
 }
+
+export const restorePlayer = async (roomCode, playerId) => {
+  const deletedRef = doc(db, "rooms", roomCode, "deleted", playerId);
+  const playerRef = doc(db, "rooms", roomCode, "players", playerId);
+
+  const snap = await getDoc(deletedRef);
+  if (!snap.exists()) throw new Error("Deleted player not found");
+
+  await setDoc(playerRef, snap.data());
+  await deleteDoc(deletedRef);
+};
+
+export const movePlayerToTeam = async (roomCode, playerId, newTeamId, newTeamName) => {
+  const playerRef = doc(db, "rooms", roomCode, "players", playerId);
+  await setDoc(playerRef, { teamId: newTeamId, teamName: newTeamName }, { merge: true });
+};
+

@@ -9,8 +9,12 @@ export default function Leaderboard({
   round = -1,
   limit = 5,
   expandable = true, // <-- add this line
+  filter = (p) => true, // <-- add this line
 }) {
-  const top = players
+  
+  const filteredPlayers = players.filter(filter);
+
+  const top = filteredPlayers
     .sort((a, b) => getTotalPoints(a, round) - getTotalPoints(b, round))
     .slice(0, limit);
 

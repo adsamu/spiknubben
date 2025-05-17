@@ -63,6 +63,7 @@ export default function TeamView() {
       console.error("Error editing or deleting player:", err);
       setError("Kunde inte uppdatera spelare.");
     }
+    setModifiedMembers([]);
   };
 
   const handleAddPlayer = async () => {

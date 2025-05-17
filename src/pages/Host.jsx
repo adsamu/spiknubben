@@ -10,8 +10,8 @@ import { Teamboard, TeamRow, TeamDetail } from "@/components/teamboard";
 import { Card, SortedList, Board, Accordion, ProgressBar } from "@/components/ui";
 import { AnimatedPage } from "@/animation";
 import { useScoreboard } from "@/hooks/useScoreboard";
-import { getTotalPoints, getSpikarCount } from '@/utils/pointHelpers';
-import { getChallengesDone, groupPlayersByTeam, allTeamsFinishedRound, allTeamsFinishedAllRounds, getTeamMates } from '@/utils/teamHelpers';
+import { getChallengesDone, groupPlayersByTeam, allTeamsFinishedRound, allTeamsFinishedAllRounds } from '@/utils/teamHelpers';
+import AdvancedPlayerTools from "@/components/AdvancedPlayerTools";
 
 
 export default function HostRoom() {
@@ -54,19 +54,20 @@ export default function HostRoom() {
         </div>
 
 
-    {/*locked={!roundOneReady}*/}
+        {/*locked={!roundOneReady}*/}
         <Accordion
           title="En gratis nubbe till..."
           locked={false}
         >
-            <Leaderboard
-              title=""
-              players={players.filter((p) => getSpikarCount(p) === 0)}
-              limit={5}
-            />
+          <Leaderboard
+            title=""
+            players={players}
+            filter={(p) => p.spikarCount === 0}
+            limit={5}
+          />
         </Accordion>
 
-    {/*locked={!allRoundsReady}*/}
+        {/*locked={!allRoundsReady}*/}
         <Accordion
           title="Poängställning"
           locked={false}
@@ -75,14 +76,16 @@ export default function HostRoom() {
             {/* Male leaderboard */}
             <Leaderboard
               title="Top 5 Pojkar"
-              players={players.filter((p) => p.gender === "male")}
+              players={players}
+              filter={(p) => p.gender === "male"}
               limit={5}
             />
 
             {/* Female leaderboard */}
             <Leaderboard
               title="Top 5 Flickor"
-              players={players.filter((p) => p.gender === "female")}
+              players={players}
+              filter={(p) => p.gender == "female"}
               limit={5}
             />
           </div>
@@ -94,10 +97,13 @@ export default function HostRoom() {
             title="Teams"
             items={Object.entries(teams)}
             sort={(a, b) => getChallengesDone(b[1]) - getChallengesDone(a[1])}
-            renderItem={([teamName, players]) => (
+            renderItem={([teamId, players]) => (
 
               <div className="w-full">
-                <p className="font-semibold text-xl text-gray-800">{teamName}</p>
+                <div className="flex items-center gap-4">
+                  <p className="font-semibold text-2xl text-gray-800">{players?.[0]?.teamName ?? "Inget namn"}</p>
+                  <p className="text-xs text-gray-400 mt-2">{teamId}</p>
+                </div>
                 <div className="text-right">
                   <ProgressBar done={getChallengesDone(players)} total={roomData.challenges * 2} />
                 </div>
@@ -108,14 +114,8 @@ export default function HostRoom() {
         </div>
 
 
-        <Accordion title="Advanced Settings" locked={true}>
-          <Teamboard title="Lag" teams={teams}>
-            {Object.entries(teams).map(([team, players]) => (
-              <TeamRow key={team} team={team} players={players} challenges={roomData.challenges}>
-                <TeamDetail players={players} roomCode={roomCode} challenges={roomData.challenges} />
-              </TeamRow>
-            ))}
-          </Teamboard>
+        <Accordion title="Advanced Settings" locked={false}>
+          <AdvancedPlayerTools roomCode={roomCode} />
         </Accordion>
 
       </Card>

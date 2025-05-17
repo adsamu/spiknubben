@@ -10,7 +10,7 @@ export default function PlayerDetail({ player, teamMates }) {
           ? teamMates.map((mate) => mate.name).join(", ")
           : "Ingen"}
       </p>
-      <p className="text-xs text-gray-400 mt-2">ID: {player.id}</p>
+      <p className="text-xs text-gray-400 mt-2">Grupp ID: {player.teamId}</p>
     </div>
   );
 }
