@@ -62,7 +62,6 @@ export default function ScoreForm({ roomCode, players, challenges, round }) {
 
             if (score !== prev[row]) {
               changed[row][col] = true;
-              console.log("old score", prev[row], "New score:", score);
             }
           });
 
