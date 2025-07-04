@@ -7,6 +7,8 @@ import { Button, TextInput, Card, AddPlayersForm, AddPlayersError } from "@/comp
 import { AnimatedPage } from "@/animation";
 import { addPlayers } from "@/utils/firestore";
 import { validatePlayersForm } from "@/utils/validation";
+import { generateTeamName } from "@/utils/teamNames";
+
 
 const generateTeamId = () =>
   Math.random().toString(36).substr(2, 6).toUpperCase();
@@ -15,7 +17,8 @@ export default function JoinGame() {
   const { roomCode } = useParams();
   const navigate = useNavigate();
 
-  const [teamName, setTeamName] = useState("");
+  // const [teamName, setTeamName] = useState("");
+  const [teamName] = useState(() => generateTeamName());
   const [members, setMembers] = useState(
     Array.from({ length: 6 }, () => ({ name: "", gender: "male" }))
   );
@@ -93,24 +96,14 @@ export default function JoinGame() {
           Välkommen till Gräsharenspelen!
         </h1>
         <p className="text-center text-sm text-gray-600 mb-4 px-2">
-          Skriv in ert gruppnamn och lägg till deltagare för att komma igång.
+          Lägg till deltagare genom att ange namn och kön för att komma igång.
         </p>
 
-        <div className="flex flex-col justify-center items-center mb-4">
-          <label className="block font-semibold mb-1">Gruppnamn</label>
-          <TextInput
-            ref={teamNameRef}
-            maxLength={10}
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                inputRefs.current[0]?.focus();
-              }
-            }}
-          />
+        <div className="flex flex-col items-center mb-4">
+          <p className="font-semibold">Erat gruppnamn:</p>
+          <p className="text-lg font-bold text-accent">{teamName}</p>
         </div>
+
 
         <AddPlayersForm
           members={members}

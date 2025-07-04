@@ -110,7 +110,7 @@ export default function TeamView() {
         {[1, 2].map((round) => (
           <Tab key={round} label={`Runda ${round}`}>
             <div className="w-full flex justify-center">
-              <h1 className="text-2xl font-bold mb-2">{teamName}</h1>
+              <h1 className="text-2xl font-bold mb-2 text-accent">{teamName}</h1>
             </div>
 
             <ScoreForm

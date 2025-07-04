@@ -11,11 +11,17 @@ export default function Leaderboard({
   expandable = true, // <-- add this line
   filter = (p) => true, // <-- add this line
 }) {
-  
+
   const filteredPlayers = players.filter(filter);
 
   const top = filteredPlayers
-    .sort((a, b) => getTotalPoints(a, round) - getTotalPoints(b, round))
+    .sort((a, b) => {
+      const spikarDiff = getSpikarCount(b, round) - getSpikarCount(a, round);
+      if (spikarDiff !== 0) {
+        return spikarDiff; // Sort by highest spikar
+      }
+      return getTotalPoints(a, round) - getTotalPoints(b, round); // Fallback to lowest score
+    })
     .slice(0, limit);
 
   return (
