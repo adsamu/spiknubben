@@ -4,3 +4,4 @@ export { default as Join } from './Join';
 export { default as Team } from './Team';
 export { default as GameSetup } from './GameSetup';
 export { default as Test } from './Test';
+export { default as Statistics } from './Statistics';

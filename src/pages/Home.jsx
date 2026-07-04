@@ -106,6 +106,15 @@ export default function Home() {
           </button>
         </div>
 
+        <div className="mt-3 text-center">
+          <button
+            onClick={() => navigate('/stats')}
+            className="text-sm text-gray-500 hover:underline"
+          >
+            Statistik
+          </button>
+        </div>
+
         {/* Room list */}
         {showRooms && (
           <div className="mt-4 max-h-[300px] overflow-y-auto border-t pt-4">
