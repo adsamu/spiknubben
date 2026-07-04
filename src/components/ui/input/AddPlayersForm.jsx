@@ -10,7 +10,7 @@ export default function AddPlayersForm({
 }) {
   const handleAddMember = () => {
     if (members.length < maxMembers) {
-      setMembers([...members, { name: "", gender: "male" }]);
+      setMembers([...members, { name: "", gender: null }]);
     }
   };
 

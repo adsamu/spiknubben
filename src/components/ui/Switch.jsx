@@ -8,11 +8,11 @@ export default function Switch({
   disabled = false,
   value,
 }) {
-  const [isChecked, setIsChecked] = useState(value);
+  const [isChecked, setIsChecked] = useState(value ?? null);
 
   const handleCheckboxChange = () => {
-    if (disabled) return; // prevent toggling when disabled
-    const newValue = !isChecked;
+    if (disabled) return;
+    const newValue = isChecked === null ? false : !isChecked;
     setIsChecked(newValue);
     onChange(newValue);
   };
@@ -37,12 +37,12 @@ export default function Switch({
         className={`flex ${containerSize} items-center justify-center rounded-md bg-secondary shadow-card flex-none`}
       >
         <span
-          className={`flex ${buttonSize} text-2xl items-center justify-center rounded ${!isChecked ? "bg-accent2 text-white" : "text-body-color"}`}
+          className={`flex ${buttonSize} text-2xl items-center justify-center rounded ${isChecked === false ? "bg-accent2 text-white" : "text-body-color"}`}
         >
           {firstChild}
         </span>
         <span
-          className={`flex ${buttonSize} text-2xl items-center justify-center rounded ${isChecked ? "bg-accent2 text-white" : "text-body-color"}`}
+          className={`flex ${buttonSize} text-2xl items-center justify-center rounded ${isChecked === true ? "bg-accent2 text-white" : "text-body-color"}`}
         >
           {secondChild}
         </span>

@@ -20,7 +20,7 @@ export default function JoinGame() {
   // const [teamName, setTeamName] = useState("");
   const [teamName] = useState(() => generateTeamName());
   const [members, setMembers] = useState(
-    Array.from({ length: 6 }, () => ({ name: "", gender: "male" }))
+    Array.from({ length: 6 }, () => ({ name: "", gender: null }))
   );
   const [error, setError] = useState("");
   const inputRefs = useRef([]);

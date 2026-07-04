@@ -5,7 +5,7 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { QRCodeSVG } from "qrcode.react";
 
 import { db } from "@/firebase-config";
-import { Scoreboard, PlayerDetail, Leaderboard } from "@/components/scoreboard";
+import { Scoreboard, PlayerDetail, Leaderboard, TeamLeaderboard } from "@/components/scoreboard";
 import { Teamboard, TeamRow, TeamDetail } from "@/components/teamboard";
 import { Card, SortedList, Board, Accordion, ProgressBar } from "@/components/ui";
 import { AnimatedPage } from "@/animation";
@@ -74,7 +74,12 @@ export default function HostRoom() {
           locked={false}
         >
           <div className="flex flex-col gap-6">
-            {/* Male leaderboard */}
+            <Leaderboard
+              title="Top 5 Mixat"
+              players={players}
+              limit={5}
+            />
+
             <Leaderboard
               title="Top 5 Pojkar"
               players={players}
@@ -82,12 +87,17 @@ export default function HostRoom() {
               limit={5}
             />
 
-            {/* Female leaderboard */}
             <Leaderboard
               title="Top 5 Flickor"
               players={players}
               filter={(p) => p.gender == "female"}
               limit={5}
+            />
+
+            <TeamLeaderboard
+              title="Lag"
+              players={players}
+              limit={10}
             />
           </div>
         </Accordion>

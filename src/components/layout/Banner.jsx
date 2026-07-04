@@ -33,7 +33,7 @@ export default function Banner({ label = "SPIKNUBBEN" }) {
 
         </div>
 
-        <p className="text-accent font-bold rotate-340 mt-5">2025</p>
+        <p className="text-accent font-bold rotate-340 mt-5">2026</p>
       </div>
 
       </div>

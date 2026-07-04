@@ -22,7 +22,8 @@ export default function MemberInput({ member, index, onNameChange, onGenderChang
         }}
       />
       <Switch
-        onChange={(isChecked) => onGenderChange(index, isChecked ? "female" : "male")}
+        value={member.gender === "female" ? true : member.gender === "male" ? false : null}
+        onChange={(val) => onGenderChange(index, val ? "female" : "male")}
       >
         <FontAwesomeIcon icon={faMars} />
         <FontAwesomeIcon icon={faVenus} />

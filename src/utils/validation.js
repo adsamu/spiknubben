@@ -19,12 +19,14 @@ export function validatePlayersForm(teamName, members, existingPlayers=[]) {
 
   const hasTooLongNames = trimmedNames.some((name) => name.length > 10);
   const teamNameIsEmpty = !teamName.trim();
+  const hasUnsetGenders = members.some((m, i) => trimmedNames[i] !== "" && !m.gender);
 
   const isFormValid =
     !teamNameIsEmpty &&
     hasAtLeastOneValidName &&
     !hasTooLongNames &&
-    !duplicateNames;
+    !duplicateNames &&
+    !hasUnsetGenders;
 
   return {
     isFormValid,
@@ -32,6 +34,7 @@ export function validatePlayersForm(teamName, members, existingPlayers=[]) {
     hasAtLeastOneValidName,
     duplicateNames,
     hasTooLongNames,
+    hasUnsetGenders,
   };
 }
 

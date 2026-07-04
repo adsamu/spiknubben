@@ -6,6 +6,7 @@ export default function AddPlayersError({ validation, backendError }) {
       {!validation?.hasAtLeastOneValidName && <p>Lägg till minst en spelare.</p>}
       {validation?.hasTooLongNames && <p>Namn får vara max 10 tecken.</p>}
       {validation?.duplicateNames && <p>Spelarnamn måste vara unika.</p>}
+      {validation?.hasUnsetGenders && <p>Alla spelare måste ha ett kön valt.</p>}
       {backendError && <p>{backendError}</p>}
     </div>
   );
